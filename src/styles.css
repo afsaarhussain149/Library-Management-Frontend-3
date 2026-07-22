@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+html {
+    scroll-behavior: smooth;
+}
+
+#contact {
+    scroll-margin-top: 100px;
+}
+
+body {
+    @apply font-normal;
+}

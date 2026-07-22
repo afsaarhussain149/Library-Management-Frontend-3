@@ -1,0 +1,277 @@
+<div *ngIf="loading" class="loader-overlay">
+  <span class="loader"></span>
+</div>  <simple-notifications [options]="notificationOptions"></simple-notifications><app-admin-header></app-admin-header>
+
+<!-- Table Card -->
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-8 mx-3 md:mx-6 my-6 md:my-8">
+
+<!-- Filters -->
+<!-- FILTER SECTION -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+  <!-- User ID -->
+  <input
+    type="text"
+    placeholder="User ID" 
+    [(ngModel)]="filters.userId"
+    class="px-4 py-2 border rounded-lg focus:outline-none w-full"
+  />
+
+  <!-- Phone -->
+  <input
+    type="text"
+    placeholder="Phone" 
+    [(ngModel)]="filters.phone"
+    class="px-4 py-2 border rounded-lg focus:outline-none w-full"
+  />
+
+  <!-- Student Name -->
+  <input
+    type="text"
+    placeholder="Student Name"
+    [(ngModel)]="filters.fullName"
+    class="px-4 py-2 border rounded-lg focus:outline-none w-full"
+  />
+
+  <!-- Active / Inactive -->
+  <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+    
+    <label class="flex items-center gap-2">
+      <input type="checkbox"
+             [(ngModel)]="filters.active"
+             (change)="applyFilter()">
+      Active
+    </label>
+
+    <label class="flex items-center gap-2">
+      <input type="checkbox"
+             [(ngModel)]="filters.inactive"
+             (change)="applyFilter()">
+      Inactive
+    </label>
+
+  </div>
+
+  <!-- Buttons -->
+  <div class="flex flex-col md:flex-row gap-2 md:col-span-4">
+
+    <button
+      (click)="applyFilter()"
+      class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full md:w-auto">
+      Search
+    </button>
+
+    <button
+      (click)="clearFilter()"
+      class="px-4 py-2 bg-gray-300 rounded-lg hover:bg-gray-400 w-full md:w-auto">
+      Clear
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- HEADER + EXPORT BUTTON -->
+<div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-4">
+
+  <h2 class="text-2xl font-semibold text-gray-800">
+    Total Students
+  </h2>
+
+  <button 
+    (click)="exportToExcel()"
+    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full md:w-auto">
+    Export to Excel
+  </button>
+
+</div>
+
+
+  <div class="overflow-x-auto bg-white rounded-xl shadow">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b bg-gray-100">
+          <th class="px-4 py-3">User ID</th>
+          <th class="px-4 py-3">Student</th>
+          <th class="px-4 py-3">Plan</th>
+          <th class="px-4 py-3">Amount</th>
+          <th class="px-4 py-3">Status</th>
+          <th class="px-4 py-3">Date</th>
+          <th class="px-4 py-3">Active/Inactive User</th>
+          <th class="px-4 py-3">Action</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let u of users" class="border-b hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium">
+            {{ u.userId }}
+          </td>
+
+          <td class="px-4 py-3 flex items-center gap-3">
+            <img
+              [src]="u.photo || 'assets/user.png'"
+              class="w-10 h-10 rounded-full object-cover"
+            />
+            {{ u.fullName }}
+          </td>
+
+          <td class="px-4 py-3">
+            {{ u.payment?.plan?.hours || '-' }} hrs
+          </td>
+
+          <td class="px-4 py-3">
+            ₹{{ (u.payment?.amount || 0) / 100 }}
+          </td>
+
+          <td class="px-4 py-3">
+            <span
+              class="px-3 py-1 text-xs rounded-full"
+              [ngClass]="{
+                'bg-green-100 text-green-700': u.payment?.status === 'paid',
+                'bg-yellow-100 text-yellow-700': u.payment?.status === 'created',
+                'bg-red-100 text-red-700': u.payment?.status === 'failed'
+              }"
+            >
+              {{ u.payment?.status || 'N/A' }}
+            </span>
+          </td>
+
+          <td class="px-4 py-3">
+            {{ u.payment?.createdAt | date:'dd MMM yyyy' }}
+          </td>
+<td class="px-4 py-3">
+
+  <!-- If payment exists -->
+  <ng-container *ngIf="u.payment; else noPayment">
+
+    <span
+      class="px-3 py-1 text-xs rounded-full cursor-pointer"
+      [ngClass]="{
+        'bg-green-100 text-green-700': u.payment.isActive === true,
+        'bg-red-100 text-red-700': u.payment.isActive === false
+      }"
+      (click)="openStatusModal(u)"
+    >
+      {{ u.payment.isActive === true ? 'Active' : 'Inactive' }}
+    </span>
+
+  </ng-container>
+
+  <!-- If no payment -->
+  <ng-template #noPayment>
+    <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+      N/A
+    </span>
+  </ng-template>
+
+</td>
+          <td class="px-4 py-3">
+            <button
+              class="w-10 h-10 flex items-center justify-center
+                    bg-blue-100 text-blue-600
+                    rounded-lg hover:bg-blue-200
+                    transition"
+              title="View Details"
+              (click)="viewUser(u)"
+            >
+              <i class="fa-solid fa-eye"></i>
+            </button>
+          </td>
+        </tr>
+
+        <tr *ngIf="!users.length && !loading">
+          <td colspan="6" class="text-center py-6 text-gray-500">
+            No records found
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-4">
+    <button
+      (click)="loadPage(page - 1)"
+      [disabled]="page === 1"
+      class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+    >
+      Prev
+    </button>
+
+    <span class="text-sm text-gray-600">
+      Page {{ page }} of {{ totalPages }}
+    </span>
+
+    <button
+      (click)="loadPage(page + 1)"
+      [disabled]="page === totalPages"
+      class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+    >
+      Next
+    </button>
+  </div>
+</div>
+
+
+
+
+<div
+  *ngIf="showStatusModal"
+  class="fixed inset-0 flex items-center justify-center z-[999]
+        bg-white/20 backdrop-blur-sm p-4"
+>
+  <div
+    class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative animate-fadeIn
+          flex flex-col space-y-6"
+  >
+
+    <!-- Close -->
+    <button
+      (click)="showStatusModal = false"
+      class="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+    >
+      ✖
+    </button>
+
+    <h2 class="text-xl font-semibold text-center">
+      Confirm Status Change
+    </h2>
+
+    <p class="text-center text-gray-600">
+      Are you sure you want to
+      <span class="font-semibold"
+        [ngClass]="{
+          'text-red-600': selectedUser?.payment?.isActive,
+          'text-green-600': !selectedUser?.payment?.isActive
+        }"
+      >
+        {{ selectedUser?.payment?.isActive ? 'Deactivate' : 'Activate' }}
+      </span>
+      this user?
+    </p>
+
+    <!-- Buttons -->
+    <div class="flex justify-center gap-4">
+      <button
+        (click)="showStatusModal = false"
+        class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+      >
+        Cancel
+      </button>
+
+      <button
+        (click)="confirmStatusChange()"
+        class="px-6 py-2 rounded-lg text-white transition"
+        [ngClass]="{
+          'bg-red-600 hover:bg-red-700': selectedUser?.payment?.isActive,
+          'bg-green-600 hover:bg-green-700': !selectedUser?.payment?.isActive
+        }"
+      >
+        Yes, Confirm
+      </button>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,540 @@
+  <style>
+    .input-line {
+  border-bottom: 1px solid black;
+  width: 100%;
+  padding: 4px 6px;
+  outline: none;
+}
+
+.textarea-line {
+  border: 1px solid black;
+  width: 100%;
+  padding: 4px 6px;
+  outline: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+  </style>
+  
+  <div *ngIf="loading" class="loader-overlay">
+    <span class="loader"></span>
+  </div>
+  <app-student-header (openComplaint)="showComplaint = true"></app-student-header>
+  <simple-notifications [options]="notificationOptions"></simple-notifications>
+
+  <section class=" min-h-screen flex items-center justify-center bg-[#f5f5ef] px-4">
+    
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 my-12 w-full max-w-7xl">
+
+      <div class="shadow border-0 rounded-2xl bg-white overflow-hidden h-[300px] sm:h-[400px] lg:h-auto">
+        <video
+          #bgVideo
+          autoplay
+          muted
+          loop
+          playsinline
+          class="w-full h-full object-cover"
+        >
+          <source src="/Video-537.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+
+      <div class="shadow border-0 rounded-2xl bg-white p-4 sm:p-5 flex flex-col items-center">
+
+        <div
+          id="id-card-print"
+          class="w-full max-w-[580px] min-h-[380px] sm:h-[400px] 
+                rounded-2xl overflow-hidden shadow-xl relative 
+                bg-white font-sans print-no-overflow"
+        >
+
+          <div class="absolute inset-x-0 top-0 h-18 bg-gradient-to-r from-[#2b2e83] via-[#7a1d6b] to-[#c21d55]"></div>
+
+          <div class="absolute top-0 right-0 w-50 h-50 bg-[#c21d55] rounded-full translate-x-24 -translate-y-24"></div>
+
+          <div class="absolute left-1/2 -translate-x-1/2 z-10">
+            <img
+              src="/FoujiBookGardenLibrarylogoICard.png"
+              class="h-60 w-auto"
+            />
+          </div>
+
+          <div class="relative flex mt-38 px-6 gap-6">
+
+            <div
+              class="w-24 h-32 sm:w-28 sm:h-36 md:w-36 md:h-44
+              rounded-xl overflow-hidden border-4 border-white shadow-md"
+            >
+              <img
+                *ngIf="userdata.photo"
+                [src]="userdata.photo"
+                class="w-full h-full object-cover"
+              />
+
+              <div
+                *ngIf="!userdata.photo"
+                class="w-full h-full flex items-center justify-center
+                text-xs sm:text-sm text-gray-400"
+              >
+                No Photo
+              </div>
+            </div>
+
+            <div class="flex-1 text-sm">
+              <div class="grid grid-cols-2">
+
+                <p class="font-semibold text-[#7a1d6b]">REG. NO.</p>
+                <p>{{ userdata.userId }}</p>
+
+                <p class="font-semibold text-[#7a1d6b]">NAME</p>
+                <p>{{ userdata.fullName }}</p>
+
+                <p class="font-semibold text-[#7a1d6b]">PHONE</p>
+                <p>{{ userdata.personalNumber }}</p>
+
+                <p class="font-semibold text-[#7a1d6b]">D.O.B</p>
+                <p>{{ formatDate(userdata.dob) }}</p>
+
+                <p class="font-semibold text-[#7a1d6b]">SEAT NO.</p>
+                <p>{{ seat }}</p>
+
+                <p class="font-semibold text-[#7a1d6b]">ASPIRANT OF</p>
+                <p>{{userdata.preparationFor}}</p>
+
+                <p class="font-semibold text-[#7a1d6b]">ADDRESS</p>
+                <p>{{ userdata.permanentAddress }}</p>
+
+              </div>
+            </div>
+          </div>
+
+          <div
+            class="absolute bottom-0 inset-x-0 flex items-center justify-between px-6 py-2 bg-[#f1e7eb]"
+          >
+            <div>
+              <p class="italic text-sm text-[#7a1d6b]">Chief of Library</p>
+              <div class="h-[2px] w-24 bg-[#7a1d6b] mt-1"></div>
+            </div>
+
+            <div
+              class="bg-[#7a1d6b] text-white px-2 py-1 rounded-md text-[10px] font-semibold"
+            >
+              VALID WHILE STILL A STUDENT
+            </div>
+          </div>
+
+        </div>
+
+        <div class="mt-6 flex gap-4">
+          
+          <button
+            type="button"
+            (click)="openEditProfile()"
+            class="bg-blue-600 text-white px-6 py-2 rounded-md font-semibold
+                  hover:bg-blue-700 transition shadow-md"
+          >
+            Edit Profile
+          </button>
+
+          <button
+            type="button"
+            (click)="downloadPdf()"
+            class="bg-[#7a1d6b] text-white px-6 py-2 rounded-md font-semibold
+            hover:bg-[#5e1552] transition shadow-md"
+          >
+            Download ID Card
+          </button>
+
+        </div>
+
+      </div>
+
+  <div class="mt-6"> 
+    <!-- <h3 class="font-bold mb-2" *ngIf="this.seatcount==1">Seat No:{{this.seat}}</h3> --> 
+    <button *ngIf="this.seatcount==0" class="w-full bg-gradient-to-r from-[#39d174] to-[#2ea862] text-white font-semibold py-3 rounded-full shadow-md hover:scale-[1.02] transition-all" (click)="seatopen()"> BOOK SEAT </button> 
+    </div>
+    </div>
+
+  <div
+    *ngIf="showComplaint"
+    class="fixed inset-0 flex items-center justify-center z-[999] 
+    bg-white/20 backdrop-blur-sm p-4"
+  >
+  
+<div 
+  class="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50"
+>
+
+  <div
+    class="bg-white w-full max-w-md sm:max-w-lg rounded-2xl shadow-xl 
+    p-5 sm:p-6 relative animate-fadeIn 
+    flex flex-col space-y-4 max-h-[90vh] overflow-y-auto"
+  >
+
+    <button
+      (click)="showComplaint = false"
+      class="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+    >
+      ✖
+    </button>
+
+    <h2 class="text-lg sm:text-2xl font-semibold text-center">
+      Submit a Complaint
+    </h2>
+
+    <div class="flex flex-col space-y-4">
+
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold mb-1">Issue Type</label>
+        <select 
+          class="w-full border rounded-lg p-2 sm:p-3 text-sm sm:text-base"
+          [(ngModel)]="issue"
+        >
+          <option value="Technical/Website Issue">Technical/Website Issue</option>
+          <option value="Payment or Billing Issue">Payment or Billing Issue</option>
+          <option value="Seat Allocation Issue">Seat Allocation Issue</option>
+          <option value="Timing or Shift Issue">Timing or Shift Issue</option>
+          <option value="Membership or Plan Issue">Membership or Plan Issue</option>
+          <option value="Library Environment Issue(Noise, AC, Cleanliness)">
+            Library Environment Issue (Noise, AC, Cleanliness)
+          </option>
+          <option value="Management Issue">Management Issue</option>
+          <option value="Incorrect Information">Incorrect Information</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="flex flex-col">
+        <label class="text-sm font-semibold mb-1">Message</label>
+        <textarea
+          [(ngModel)]="message"
+          class="w-full border rounded-lg p-2 sm:p-3 h-28 sm:h-32 resize-none text-sm sm:text-base"
+          placeholder="Describe your issue..."
+        ></textarea>
+      </div>
+
+      <button 
+        (click)="complain()"
+        class="w-full bg-[#39d174] text-white font-semibold py-3 
+               rounded-lg shadow-md 
+               hover:scale-[1.02] transition-all text-sm sm:text-base"
+      >
+        Submit Complaint
+      </button>
+
+    </div>
+  </div>
+</div>
+  </div>
+
+<!-- BACKDROP -->
+<div
+  *ngIf="showEditProfile"
+  class="fixed inset-0 z-[999] flex items-center justify-center">
+
+  <!-- DARK OVERLAY -->
+  <div
+    class="absolute inset-0 bg-black/60 backdrop-blur-sm"
+    (click)="showEditProfile = false">
+  </div>
+
+  <!-- MODAL -->
+  <div
+    class="relative bg-white w-full max-w-5xl
+           h-[100vh] sm:max-h-[95vh]
+           overflow-y-auto
+           rounded-none sm:rounded-2xl
+           shadow-2xl
+           animate-fadeIn
+           p-4 sm:p-6">
+
+    <!-- CLOSE BUTTON -->
+    <button
+      (click)="showEditProfile = false"
+      class="absolute top-4 right-4
+             text-gray-500 hover:text-black
+             text-xl font-bold">
+      ✕
+    </button>
+
+    <!-- FORM WRAPPER -->
+    <div class="flex justify-center bg-white py-6 print-area">
+
+      <div class="w-full max-w-[850px]
+                  bg-white text-black
+                  p-6 sm:p-8 md:p-10
+                  border-2 border-black">
+
+        <!-- HEADER -->
+        <div class="text-center border-b-2 border-black pb-4">
+          <h1 class="text-2xl sm:text-3xl font-bold uppercase tracking-wide">
+            Fouji Book Garden Library
+          </h1>
+
+          <p class="text-xs sm:text-sm mt-1 uppercase tracking-wide">
+            Jaitpur Khadda Colony, Badarpur, New Delhi - 110044
+          </p>
+
+          <h2 class="text-lg sm:text-xl font-bold underline mt-3">
+            Membership Form
+          </h2>
+        </div>
+
+        <!-- REGISTRATION -->
+        <div class="mt-6 flex flex-col sm:flex-row
+                    sm:justify-between sm:items-center gap-3 text-sm">
+
+          <span class="bg-gray-200 px-4 py-1
+                       font-semibold border border-black">
+            Registration No. {{ userdata.userId }}
+          </span>
+
+          <span class="font-semibold">
+            Seat No. :
+            <input class="input-line w-24 ml-2"
+                   disabled
+                   [(ngModel)]="seat">
+          </span>
+        </div>
+
+        <!-- BODY -->
+        <div class="grid grid-cols-1 md:grid-cols-3
+                    gap-6 md:gap-8 mt-6 text-sm">
+
+          <!-- LEFT SIDE -->
+          <div class="col-span-1 md:col-span-2 space-y-4">
+
+            <!-- FIELD -->
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Name (Capital) 
+              </span>
+              
+              <input class="input-line"
+                     [(ngModel)]="form.fullName">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Father Name
+              </span>
+              <input class="input-line"
+                     [(ngModel)]="form.fatherName">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Gender
+              </span>
+              <select class="input-line"
+                      [(ngModel)]="form.gender">
+                <option value="">Select</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Date of Birth
+              </span>
+              <input type="date"
+                     class="input-line"
+                     [(ngModel)]="form.dob">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Email
+              </span>
+              <input class="input-line"
+                     [(ngModel)]="form.email">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Phone No
+              </span>
+              <input class="input-line"
+                     [(ngModel)]="form.personalNumber">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Emergency No
+              </span>
+              <input class="input-line"
+                     [(ngModel)]="form.emergencyNumber">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Aadhar No
+              </span>
+              <input class="input-line"
+                     [(ngModel)]="form.aadh">
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Preparation For
+              </span>
+              <input class="input-line"
+                     [(ngModel)]="form.preparationFor">
+            </div>
+
+            <div>
+              <p class="font-semibold mb-1">
+                Present Address
+              </p>
+              <textarea rows="2"
+                        class="textarea-line"
+                        [(ngModel)]="form.presentAddress"></textarea>
+            </div>
+
+            <div>
+              <p class="font-semibold mb-1">
+                Permanent Address
+              </p>
+              <textarea rows="2"
+                        class="textarea-line"
+                        [(ngModel)]="form.permanentAddress"></textarea>
+            </div>
+
+          </div>
+
+          <!-- PHOTO SECTION -->
+          <div class="flex flex-col items-center mt-6 md:mt-0">
+
+            <div class="relative border-2 border-black
+                        w-32 h-40
+                        sm:w-36 sm:h-44
+                        md:w-40 md:h-48
+                        flex items-center justify-center">
+
+              <img *ngIf="form.photo"
+                   [src]="form.photo"
+                   class="w-full h-full object-cover">
+
+              <div *ngIf="!form.photo"
+                   class="text-xs text-gray-600 text-center px-2">
+                Passport Size Photo
+              </div>
+
+              <button *ngIf="form.photo"
+                      type="button"
+                      class="absolute top-1 right-1
+                             bg-red-500 text-white
+                             rounded-full w-6 h-6 text-xs"
+                      (click)="removePhoto()">
+                ✕
+              </button>
+            </div>
+
+            <input #photoInput
+                   type="file"
+                   hidden
+                   accept="image/*"
+                   (change)="onImageSelect($event)">
+
+            <a class="text-blue-600 text-xs mt-3 cursor-pointer"
+               (click)="photoInput.click()">
+              Edit Photo
+            </a>
+
+          </div>
+
+        </div>
+
+        <!-- UPDATE BUTTON -->
+        <div class="text-center mt-8 md:mt-10">
+          <button
+            (click)="updateProfile()"
+            class="bg-green-600 text-white
+                   w-full sm:w-auto
+                   px-6 sm:px-8 py-2
+                   rounded-lg shadow
+                   hover:bg-green-700 transition">
+            Update Profile
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+  </section>
+
+  <!-- Card Container -->
+  <section class="min-h-screen flex justify-center bg-[#f5f5ef] px-4">
+    <div class="w-full max-w-7xl bg-white rounded-2xl shadow-md border border-gray-200 p-8">
+
+    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Payment Details </h2>
+
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-gray-200">
+            <th class="py-3 px-4 text-gray-600 font-medium">Payment ID</th>
+            <th class="py-3 px-4 text-gray-600 font-medium">Shift/Months</th>
+            <th class="py-3 px-4 text-gray-600 font-medium">Payment</th>
+            <th class="py-3 px-4 text-gray-600 font-medium">Status</th>
+            <th class="py-3 px-4 text-gray-600 font-medium">Date/Time</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr
+            *ngFor="let product of paymentdata"
+            class="border-b last:border-none hover:bg-gray-50 transition-colors duration-200"
+          >
+              <td class="py-4 px-4">
+              <div class="text-lg font-medium text-gray-800">
+                {{  userdata.userId }}
+              </div>
+            </td>
+
+
+            <td class="py-4 px-4">
+              <div class="text-lg font-medium text-gray-800">
+                {{ product.plan.hours }} Hours / {{product.plan.type}}
+              </div>
+            </td>
+
+            <td class="py-4 px-4">
+              <div class="text-lg font-medium text-gray-800">
+                {{ product.amount/100 }}
+              </div>
+            </td>
+
+            <td class="py-4 px-4">
+              <span
+                class="text-xs px-3 py-1 rounded-full font-medium"
+                ngClass="bg-blue-100 text-blue-600"
+              >
+                {{ product.status }}
+              </span>
+            </td>
+
+            <td class="py-4 px-4">
+              <div class="text-lg font-medium text-gray-800">
+                {{ product.createdAt | date:'dd-MM-yyyy / HH : mm' }}
+              </div>
+            </td>
+            
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </section>
+

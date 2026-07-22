@@ -1,0 +1,214 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div *ngIf="loading" class="loader-overlay">
+  <span class="loader"></span>
+</div>
+
+<div class="min-h-screen flex">
+
+  <!-- Left Section (Image) -->
+  <div class="hidden md:flex w-2/5 bg-[#dff5dc] justify-center items-center">
+    <img src="login.png" alt="Illustration" class="w-full h-full object-cover">
+  </div>
+
+  <!-- Right Section (Login + Register Flip Card) -->
+  <div class="w-full md:w-3/5 flex justify-center items-center bg-gradient-to-br
+        from-[#e9fce9] via-white to-[#dff5dc] relative p-4">
+
+    <div class="perspective w-full max-w-md flex justify-center items-center">
+
+      <!-- Flip Container -->
+      <div class="flip-container" [class.flipped]="isFlipped">
+
+        <!-- ⭐ LOGIN FRONT SIDE -->
+        <div class="front bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/40 p-8">
+
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-4 text-[#1c3125]">
+    Reset Password
+  </h2>
+
+  <p class="text-center text-gray-600 mb-6 text-sm">
+    Enter Phone & New Password to Reset
+  </p>
+
+  <div class="space-y-6">
+
+    <div>
+      <label class="block text-gray-700 mb-2 font-medium text-base">Phone Number</label>
+      <input type="tel" maxlength="10" [(ngModel)]="resetPhone"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-[#39d174] shadow-sm">
+    </div>
+
+    <div>
+      <label class="block text-gray-700 mb-2 font-medium text-base">
+        New Password
+      </label>
+
+      <div class="relative">
+
+        <input
+          [type]="showResetPassword ? 'text' : 'password'"
+          [(ngModel)]="resetPassword"
+          class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-[#39d174] shadow-sm">
+
+        <!-- Eye Icon -->
+        <span
+          (click)="showResetPassword = !showResetPassword"
+          class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+
+          <!-- Eye Open -->
+          <svg *ngIf="!showResetPassword"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5
+                    c4.477 0 8.268 2.943 9.542 7
+                    -1.274 4.057-5.065 7-9.542 7
+                    -4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+
+          <!-- Eye Closed -->
+          <svg *ngIf="showResetPassword"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19
+                    c-4.478 0-8.268-2.943-9.543-7
+                    a9.97 9.97 0 012.223-3.592M6.228 6.228
+                    A9.956 9.956 0 0112 5c4.478 0 8.268 2.943
+                    9.543 7a9.97 9.97 0 01-4.293 5.077M15 12
+                    a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
+          </svg>
+
+        </span>
+
+      </div>
+    </div>
+    
+    <div>
+
+      <label class="block text-gray-700 mb-2 font-medium text-base">
+        Confirm Password
+      </label>
+
+      <div class="relative">
+
+        <input
+          [type]="showConfirmPassword ? 'text' : 'password'"
+          [(ngModel)]="confirmPassword"
+          class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl focus:ring-[#39d174] shadow-sm">
+
+        <!-- Eye Icon -->
+        <span
+          (click)="showConfirmPassword = !showConfirmPassword"
+          class="absolute right-4 top-1/2 -translate-y-1/2 cursor-pointer text-gray-500">
+
+          <!-- Eye Open -->
+          <svg *ngIf="!showConfirmPassword"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M2.458 12C3.732 7.943 7.523 5 12 5
+                    c4.477 0 8.268 2.943 9.542 7
+                    -1.274 4.057-5.065 7-9.542 7
+                    -4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+
+          <!-- Eye Closed -->
+          <svg *ngIf="showConfirmPassword"
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor">
+
+            <path stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.875 18.825A10.05 10.05 0 0112 19
+                    c-4.478 0-8.268-2.943-9.543-7
+                    a9.97 9.97 0 012.223-3.592M6.228 6.228
+                    A9.956 9.956 0 0112 5c4.478 0 8.268 2.943
+                    9.543 7a9.97 9.97 0 01-4.293 5.077M15 12
+                    a3 3 0 11-6 0 3 3 0 016 0zm6 6L3 3" />
+          </svg>
+
+        </span>
+
+      </div>
+
+      <!-- Match Messages -->
+      <p *ngIf="resetPassword && confirmPassword && resetPassword !== confirmPassword"
+        class="text-red-500 text-sm mt-1">
+        Passwords do not match ❌
+      </p>
+
+      <p *ngIf="resetPassword && confirmPassword && resetPassword === confirmPassword"
+        class="text-green-600 text-sm mt-1">
+        Password matched ✔
+      </p>
+
+    </div>
+
+  <button 
+  (click)="resetPasswordApi()" 
+  [disabled]="resetPassword !== confirmPassword || !resetPassword"
+  [class.opacity-50]="resetPassword !== confirmPassword || !resetPassword"
+  class="w-full bg-gradient-to-r from-[#39d174] to-[#2ea862]
+         text-white font-semibold py-3 rounded-full shadow-md
+         hover:scale-[1.02] duration-300 disabled:cursor-not-allowed">
+  Change Password
+</button>
+
+  </div>
+
+  <p class="text-center text-gray-600 text-sm mt-6">
+    Back to Login?
+    <a (click)="flipToLogin()" class="text-[#39d174] cursor-pointer hover:underline">
+      Login
+    </a>
+  </p>
+
+
+        </div>
+
+        <!-- ⭐ REGISTER BACK SIDE -->
+        <div class="back ">
+
+          
+
+        </div>
+<!-- ⭐ FORGOT PASSWORD BACK SIDE -->
+
+      </div>
+    </div>
+  </div>
+</div>

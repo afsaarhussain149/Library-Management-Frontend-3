@@ -1,0 +1,97 @@
+<section class="py-10 bg-[#181818] text-white relative">
+  <div class="max-w-7xl mx-auto px-6 relative">
+
+
+    <!-- Left Arrow -->
+    <button
+      (click)="scrollLeft()"
+      class="hidden md:flex  text-white-800 items-center justify-center rounded-full shadow-lg absolute left-0 top-1/2 -translate-y-1/2 z-10 "
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="48"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 512 512"
+      >
+        <path d="M328 112L184 256L328 400"></path>
+      </svg>
+    </button>
+
+    <!-- Right Arrow -->
+    <button
+      (click)="scrollRight()"
+      class="hidden md:flex  text-white-800 items-center justify-center rounded-full shadow-lg absolute right-0 top-1/2 -translate-y-1/2 z-10 "
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="48"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 512 512"
+      >
+        <path d="M184 112L328 256L184 400"></path>
+      </svg>
+    </button>
+
+    <!-- Scrollable Cards -->
+   <div
+  #cardContainer
+  class="flex space-x-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+>
+  <!-- Plan Card -->
+  <div
+    *ngFor="let plan of plans"
+    class="min-w-[250px] h-auto bg-gray-800/60 border border-gray-700 p-5 rounded-2xl shadow-md snap-center"
+  >
+    <div class="flex justify-between items-center mb-2">
+      <h3 class="text-3xl font-semibold">{{ plan.hours }} hr</h3>
+      <label class="flex items-center space-x-2 text-sm">
+        <span>Tick Plan</span>
+        <input
+          type="checkbox"
+          class="w-5 h-5 accent-green-600"
+          [(ngModel)]="plan.selected"
+          (change)="onPlanSelect(plan)"
+        />
+      </label>
+    </div>
+
+    <p class="text-sm text-gray-300 mb-3">Time Shift</p>
+
+    <!-- Show options only if user ticked plan -->
+    <div *ngIf="plan.selected" class="space-y-2 text-xs border-t border-gray-600 pt-3">
+      <div
+        *ngFor="let opt of plan.options"
+        class="flex items-center justify-between cursor-pointer p-2 rounded-md hover:bg-gray-700"
+        [class.bg-green-700]="plan.selectedOption === opt.name"
+        (click)="selectOption(plan, opt)"
+      >
+        <span>{{ opt.name }}</span>
+        <span class="font-semibold">₹{{ opt.price }}</span>
+      </div>
+    </div>
+
+    <p class="text-[10px] text-red-400 mt-3">
+      *Fees non-refundable after registration
+    </p>
+  </div>
+</div>
+
+<!-- Total section -->
+<div *ngIf="selectedPlan" class="mt-6 p-4 bg-gray-800/70 rounded-xl border border-gray-700 max-w-md mx-auto">
+  <h3 class="text-xl font-semibold text-green-400 mb-2">Selected Plan Summary</h3>
+  <p class="text-gray-300">
+    Plan: <span class="font-semibold">{{ selectedPlan.hours }} hr</span><br />
+    Type: <span class="font-semibold">{{ selectedPlan.selectedOption }}</span><br />
+    Total: <span class="font-semibold text-green-400">₹{{ totalAmount }}</span>
+  </p>
+</div>
+
+
+  </div>
+</section>

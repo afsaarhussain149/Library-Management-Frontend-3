@@ -1,0 +1,104 @@
+<div class="seat-scroll-wrapper">
+  <div class="seat-scroll-inner">
+    <div class="inline-block w-full">
+      <!-- TOP L SECTION -->
+      <div class="bg-gray-200 p-3 mb-3">
+        <div class="flex flex-col gap-2">
+
+          <!-- Repeatable rows -->
+          <ng-container *ngFor="let row of topRows">
+            <div class="flex gap-2">
+
+              <!-- Empty Spaces -->
+              <ng-container *ngFor="let e of row.empty">
+                <div class="w-12 h-12"></div>
+              </ng-container>
+
+              <!-- Left Seats -->
+              <ng-container *ngFor="let s of row.left">
+                <button
+                  class="seat w-12 h-12 flex items-center justify-center transition-colors"
+                  [ngClass]="getSeatClass(s)"
+                  (click)="toggleSeat(s)"
+                >
+                  {{ s.id }}
+                </button>
+              </ng-container>
+
+              <!-- Gap (ms-10) -->
+              <div *ngIf="row.right.length > 0" class="ms-10"></div>
+
+              <!-- Right Seats -->
+              <ng-container *ngFor="let s of row.right">
+                <button
+                  class="seat w-12 h-12 flex items-center justify-center transition-colors"
+                  [ngClass]="getSeatClass(s)"
+                  (click)="toggleSeat(s)"
+                >
+                  {{ s.id }}
+                </button>
+              </ng-container>
+            </div>
+          </ng-container>
+
+        </div>
+      </div>
+
+      <!-- BOTTOM HORIZONTAL SECTION -->
+      <div class="bg-gray-200 p-3">
+        <div class="flex flex-col gap-2">
+
+          <!-- Row 1 -->
+          <div class="flex gap-2">
+            <ng-container *ngFor="let s of bottomRow1">
+              <button
+                class="seat w-12 h-12 flex items-center justify-center transition-colors"
+                [ngClass]="getSeatClass(s)"
+                (click)="toggleSeat(s)"
+              >
+                {{ s.id }}
+              </button>
+            </ng-container>
+
+            <div class="w-12 h-12 flex items-center text-center text-[black]">Entry Gate</div>
+
+            <ng-container *ngFor="let s of bottomRight1">
+              <button
+                class="seat w-12 h-12 flex items-center justify-center transition-colors"
+                [ngClass]="getSeatClass(s)"
+                (click)="toggleSeat(s)"
+              >
+                {{ s.id }}
+              </button>
+            </ng-container>
+          </div>
+
+          <!-- Row 2 -->
+          <div class="flex gap-2">
+            <ng-container *ngFor="let s of bottomRow2Left">
+              <button
+                class="seat w-12 h-12 flex items-center justify-center mt-10 transition-colors"
+                [ngClass]="getSeatClass(s)"
+                (click)="toggleSeat(s)"
+              >
+                {{ s.id }}
+              </button>
+            </ng-container>
+
+            <div class="w-12 h-12"></div>
+
+            <ng-container *ngFor="let s of bottomRow2Right">
+              <button
+                class="seat w-12 h-12 flex items-center justify-center mt-10 transition-colors"
+                [ngClass]="getSeatClass(s)"
+                (click)="toggleSeat(s)"
+              >
+                {{ s.id }}
+              </button>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,315 @@
+<style>
+  .input-line {
+    flex: 1;
+    border: none;
+    border-bottom: 1px dotted black;
+    outline: none;
+    background: transparent;
+  }
+
+  .textarea-line {
+    width: 100%;
+    border: none;
+    border-bottom: 1px dotted black;
+    outline: none;
+    resize: none;
+    background: transparent;
+  }
+
+  .photo-box {
+    width: 140px;
+    height: 170px;
+    border: 1px solid black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .signature-line {
+    margin-top: 40px;
+    width: 200px;
+    border-top: 1px solid black;
+    text-align: center;
+  }
+
+  .action-btn {
+    border: 1px solid black;
+    padding: 8px 20px;
+    font-weight: 600;
+  }
+
+  /* 🔥 PRINT LOGIC */
+  @media print {
+
+    body * {
+      visibility: hidden;
+    }
+
+    .print-area,
+    .print-area * {
+      visibility: visible;
+    }
+
+    .print-area {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+    }
+
+    .no-print,
+    button,
+    input[type=file],
+    .edit-photo {
+      display: none !important;
+    }
+  }
+</style>
+
+<div *ngIf="loading" class="loader-overlay no-print">
+  <span class="loader"></span>
+</div>
+
+<simple-notifications class="no-print"
+  [options]="notificationOptions"></simple-notifications>
+
+<app-admin-header class="no-print"></app-admin-header>
+
+<!-- ✅ PRINT AREA START -->
+<div class="flex justify-center bg-white py-10 print-area">
+
+  <div class="w-[850px] bg-white text-black p-10 shadow-lg border border-black">
+
+    <!-- HEADER -->
+    <h1 class="text-center text-3xl font-bold uppercase">
+      Fouji Book Garden Library
+    </h1>
+
+    <p class="text-center text-sm mt-1 uppercase">
+      Jaitpur Khadda Colony Badarpur New Delhi-110044
+    </p>
+
+    <h2 class="text-center text-xl font-bold underline mt-4">
+      Membership Form
+    </h2>
+
+    <!-- REGISTRATION -->
+    <div class="mt-6 flex justify-between">
+      <span class="bg-gray-300 px-4 py-1 font-semibold">
+        Registration No. {{ data.userId }}
+      </span>
+
+      <span class="font-semibold">
+        Seat No. :
+        <input class="input-line w-24 ml-2" disabled [(ngModel)]="form.seat">
+      </span>
+    </div>
+
+    <!-- BODY -->
+    <div class="grid grid-cols-3 gap-6 mt-6 text-sm">
+
+      <!-- LEFT -->
+      <div class="col-span-2 space-y-4">
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Name (Capital)</span>
+          <input class="input-line" [(ngModel)]="form.fullName">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Father Name</span>
+          <input class="input-line" [(ngModel)]="form.fatherName">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Gender</span>
+          <select class="input-line" [(ngModel)]="form.gender">
+            <option value="">Select</option>
+            <option>Male</option>
+            <option>Female</option>
+          </select>
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Date of Birth</span>
+          <input type="date" class="input-line" [(ngModel)]="form.dob">
+        </div>
+        <div class="flex">
+          <span class="w-40 font-semibold">Date of Joining</span>
+          <input type="date" class="input-line" [(ngModel)]="form.createdAt">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Slot Timing</span>
+          <input class="input-line" [(ngModel)]="form.slot">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Email</span>
+          <input class="input-line" [(ngModel)]="form.email">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Phone No</span>
+          <input class="input-line" [(ngModel)]="form.personalNumber">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Emergency No</span>
+          <input class="input-line" [(ngModel)]="form.emergencyNumber">
+        </div>
+
+        <div class="flex">
+          <span class="w-40 font-semibold">Aadhar No</span>
+          <input class="input-line" [(ngModel)]="form.aadh">
+        </div>
+
+        <div>
+          <p class="font-semibold">Present Address</p>
+          <textarea rows="2" class="textarea-line"
+            [(ngModel)]="form.presentAddress"></textarea>
+        </div>
+
+        <div>
+          <p class="font-semibold">Permanent Address</p>
+          <textarea rows="2" class="textarea-line"
+            [(ngModel)]="form.permanentAddress"></textarea>
+        </div>
+
+      </div>
+
+      <!-- PHOTO -->
+     <div class="flex flex-col items-center">
+
+  <div class="photo-box">
+  <img
+    *ngIf="form.photo"
+    [src]="form.photo"
+    alt="User Photo"
+  />
+
+  <div *ngIf="!form.photo" class="no-photo">
+    NO PHOTO
+  </div>
+
+  <!-- DELETE BUTTON -->
+  <button
+    *ngIf="form.photo"
+    type="button"
+    class="delete-btn no-print"
+    (click)="removePhoto()">
+    ✕
+  </button>
+</div>
+
+<input
+  #photoInput
+  type="file"
+  hidden
+  accept="image/*"
+  (change)="onImageSelect($event)"
+>
+
+<a
+  class="edit-photo text-blue-700 text-xs mt-2 cursor-pointer no-print"
+  (click)="photoInput.click()">
+  Edit Photo
+</a>
+
+</div>
+
+
+    </div>
+
+    <!-- FOOTER -->
+    <div class="flex justify-between mt-12 text-sm">
+      <div>
+        <p>Approved By</p>
+        <div class="signature-line">Head of Library</div>
+      </div>
+
+      <div>
+        <p>Signature of Applicant</p>
+        <div class="signature-line"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- ✅ PRINT AREA END -->
+
+<!-- ACTION BUTTONS -->
+<div class="flex justify-center gap-6 mb-10 no-print">
+  <button class="action-btn" (click)="updateProfile()">Update</button>
+  <button class="action-btn" (click)="downloadForm()">Download</button>
+  <button class="action-btn" (click)="routeback()">Back</button>
+</div>
+
+<!-- FEES TABLE -->
+<div class="bg-white rounded-2xl shadow-md border border-gray-200 p-4 md:p-8 mx-3 md:mx-6 my-6 md:my-8">
+  <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+    Fees Details of Student
+  </h2>
+
+  <div class="overflow-x-auto bg-white rounded-xl shadow">
+    <table class="min-w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b bg-gray-100">
+          <th class="px-4 py-3">User ID</th>
+          <th class="px-4 py-3">Student</th>
+          <th class="px-4 py-3">Plan</th>
+          <th class="px-4 py-3">Amount</th>
+          <th class="px-4 py-3">Status</th>
+          <th class="px-4 py-3">Date</th>
+        </tr>
+      </thead>
+
+      <tbody>
+      <tr  class="border-b hover:bg-gray-50">
+          <td class="px-4 py-3 font-medium">
+            {{ data.userId }}
+          </td>
+
+          <td class="px-4 py-3 flex items-center gap-3">
+            
+            {{ data.fullName }}
+          </td>
+
+          <td class="px-4 py-3">
+            {{ data.payment?.plan?.hours || '-' }} hrs
+          </td>
+
+          <td class="px-4 py-3">
+            ₹{{ (data.payment?.amount || 0) / 100 }}
+          </td>
+
+          <td class="px-4 py-3">
+            <span
+              class="px-3 py-1 text-xs rounded-full"
+              [ngClass]="{
+                'bg-green-100 text-green-700': data.payment?.status === 'paid',
+                'bg-yellow-100 text-yellow-700': data.payment?.status === 'created',
+                'bg-red-100 text-red-700': data.payment?.status === 'failed'
+              }"
+            >
+              {{ data.payment?.status || 'N/A' }}
+            </span>
+          </td>
+
+          <td class="px-4 py-3">
+            {{ data.payment?.createdAt | date:'dd MMM yyyy' }}
+          </td>
+
+   
+        </tr>
+
+     
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  
+</div>
+

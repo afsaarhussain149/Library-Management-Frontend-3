@@ -1,0 +1,75 @@
+<script src="https://cdn.tailwindcss.com"></script>
+
+<div *ngIf="loading" class="loader-overlay">
+  <span class="loader"></span>
+</div>
+
+<div class="min-h-screen flex">
+
+  <!-- Left Section (Image) -->
+  <div class="hidden md:flex w-2/5 bg-[#dff5dc] justify-center items-center">
+    <img src="login.png" alt="Illustration" class="w-full h-full object-cover">
+  </div>
+
+  <!-- Right Section (Login + Register Flip Card) -->
+  <div class="w-full md:w-3/5 flex justify-center items-center bg-gradient-to-br
+        from-[#e9fce9] via-white to-[#dff5dc] relative p-4">
+
+    <div class="perspective w-full max-w-md flex justify-center items-center">
+
+      <!-- Flip Container -->
+      <div class="flip-container" [class.flipped]="isFlipped">
+
+        <!-- ⭐ LOGIN FRONT SIDE -->
+        <div class="front bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/40 p-8">
+
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-center mb-4 text-[#1c3125]">
+    Unpaid User
+  </h2>
+
+  <p class="text-center text-gray-600 mb-6 text-sm">
+    Enter Phone & New Password to Reset
+  </p>
+
+  <div class="space-y-6">
+
+    <div>
+      <label class="block text-gray-700 mb-2 font-medium text-base">Phone Number</label>
+      <input type="tel" maxlength="10" [(ngModel)]="unpaidPhone" placeholder="phone no"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-[#39d174] shadow-sm">
+    </div>
+ <button
+        (click)="checkUnpaidUser()"
+        class="w-full bg-gradient-to-r from-[#39d174] to-[#2ea862]
+         text-white font-semibold py-3 rounded-full shadow-md
+         hover:scale-[1.02] duration-300 disabled:cursor-not-allowed">
+        Continue as Unpaid
+      </button>
+
+
+ 
+
+  </div>
+
+  <p class="text-center text-gray-600 text-sm mt-6">
+    Back to Login?
+    <a (click)="flipToLogin()" class="text-[#39d174] cursor-pointer hover:underline">
+      Login
+    </a>
+  </p>
+
+
+        </div>
+
+        <!-- ⭐ REGISTER BACK SIDE -->
+        <div class="back ">
+
+          
+
+        </div>
+<!-- ⭐ FORGOT PASSWORD BACK SIDE -->
+
+      </div>
+    </div>
+  </div>
+</div>

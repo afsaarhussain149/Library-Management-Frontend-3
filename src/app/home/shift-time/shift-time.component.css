@@ -1,0 +1,13 @@
+/* .shift-btn {
+    @apply bg-cyan-200 text-gray-800 font-semibold py-2 px-6 rounded-md shadow-md hover:bg-cyan-300 active:scale-95 transition-all duration-200 w-24 text-center;
+} */
+
+/* Optional line effect (like flow arrows using border) */
+.shift-btn+.shift-btn::before {
+    content: "⇅";
+    display: block;
+    text-align: center;
+    color: #ec4899;
+    font-size: 18px;
+    margin-bottom: 2px;
+}

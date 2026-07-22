@@ -1,0 +1,593 @@
+<div *ngIf="loading" class="loader-overlay">
+  <span class="loader"></span>
+</div>
+
+<app-student-header></app-student-header>
+<simple-notifications [options]="notificationOptions"></simple-notifications>
+
+<div class="max-w-5xl mx-auto mt-10 px-4 text-white">
+  <!-- Progress Bar -->
+  <div class="flex justify-center items-center mb-10">
+    <ng-container *ngFor="let step of steps; let i = index">
+      <div class="flex items-center">
+        <div
+          class="w-10 h-10 flex items-center justify-center rounded-full border-2 text-sm font-medium"
+          [ngClass]="{
+            'bg-green-600 text-white border-green-600': i <= currentStepIndex,
+            'bg-gray-300 text-gray-700 border-gray-300': i > currentStepIndex
+          }"
+        >
+          {{ i + 1 }}
+        </div>
+        <div
+          *ngIf="i < steps.length - 1"
+          class="w-10 h-0.5"
+          [ngClass]="{
+            'bg-green-600': i < currentStepIndex,
+            'bg-gray-300': i >= currentStepIndex
+          }"
+        ></div>
+      </div>
+    </ng-container>
+  </div>
+
+  <!-- Step Title -->
+  <h2 class="text-center text-lg font-semibold uppercase mb-6"  style="color: black;">
+    {{ steps[currentStepIndex].title }}
+  </h2>
+
+  <!-- Step Content -->
+  <div class="bg-gray-900 p-6 rounded-xl shadow">
+    <!-- Step 1 -->
+   <!-- STEP 1: PLAN SELECTION -->
+<div *ngIf="currentStepIndex === 0" class="relative py-6">
+
+  <!-- LEFT Arrow -->
+<button
+      (click)="scrollLeft()"
+      class="hidden md:flex  text-white-800 items-center justify-center rounded-full shadow-lg absolute left-0 top-1/2 -translate-y-1/2 z-10 "
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="48"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 512 512"
+      >
+        <path d="M328 112L184 256L328 400"></path>
+      </svg>
+    </button>
+
+    <!-- Right Arrow -->
+    <button
+      (click)="scrollRight()"
+      class="hidden md:flex  text-white-800 items-center justify-center rounded-full shadow-lg absolute right-0 top-1/2 -translate-y-1/2 z-10 "
+    >
+      <svg
+        class="w-6 h-6"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="48"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 512 512"
+      >
+        <path d="M184 112L328 256L184 400"></path>
+      </svg>
+    </button>
+
+  <!-- SCROLLABLE CARDS -->
+  <div
+    #cardContainer
+    class="flex space-x-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+  >
+
+    <!-- PLAN CARDS -->
+    <div
+      *ngFor="let plan of plans"
+      class="min-w-[250px] h-auto bg-gray-800/60 border border-gray-700 p-5 rounded-2xl shadow-md snap-center"
+    >
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-3xl font-semibold">{{ plan.hours }} Hrs</h3>
+        <label class="flex items-center space-x-2 text-sm">
+          <span>Choose Plan</span>
+          <input
+            type="checkbox"
+            class="w-5 h-5 accent-green-600"
+            [(ngModel)]="plan.selected"
+            (change)="onPlanSelect(plan)"
+          />
+        </label>
+      </div>
+
+      <p class="text-sm text-gray-300 mb-3">Time Slot</p>
+
+      <!-- OPTIONS -->
+      <div *ngIf="plan.selected" class="space-y-2 text-xs border-t border-gray-600 pt-3">
+
+    <div class="flex items-center justify-between text-[10px] text-gray-300 mb-1">
+      <span class="text-[14px] ms-3  mb-1">Plan</span>
+      <span class="text-[14px] mb-1">Price (Discount)</span>
+    </div>
+
+    <!-- Divider line -->
+    <div class="border-t border-dashed border-gray-500 my-1"></div>
+        <div
+          *ngFor="let opt of plan.options"
+          class="flex items-center justify-between cursor-pointer p-2 rounded-md hover:bg-gray-700 transition-all"
+          [class.bg-green-700]="plan.selectedOption === opt.name"
+          (click)="selectOption(plan, opt)"
+        >
+          <span>{{ opt.name }}</span>
+          <span class="font-semibold">
+            ₹{{ opt.price }}
+            <span
+              *ngIf="getDiscountPercent(plan, opt) > 0"
+              class="text-green-300 text-[11px]"
+            >
+              ({{ getDiscountPercent(plan, opt) }}% OFF)
+            </span>
+          </span>
+        </div>
+      </div>
+
+      <p class="text-[14px] text-blue-400 mt-3">
+        *Please select above plan 
+      </p>
+    </div>
+  </div>
+
+  <!-- SELECTED PLAN SUMMARY -->
+  <div
+    *ngIf="selectedPlanData"
+    class="mt-6 p-4 bg-gray-800/70 rounded-xl border border-gray-700 max-w-md mx-auto"
+  >
+    <h3 class="text-xl font-semibold text-green-400 mb-2">Selected Plan Summary</h3>
+
+    <p class="text-gray-300">
+      Plan: <span class="font-semibold">{{ selectedPlanData.hours }} Hrs</span><br />
+      Type: <span class="font-semibold">{{ selectedPlanData.type }}</span><br />
+      Total: <span class="font-semibold text-green-400">₹{{ selectedPlanData.amount }}</span>
+    </p>
+  </div>
+
+</div>
+
+
+    <!-- Step 2 -->
+   <!-- Step 2 -->
+<div *ngIf="currentStepIndex === 1">
+  <h1 class="text-center text-2xl font-semibold mb-6">Select Time Duration</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+    <div *ngFor="let shift of shifts" class="flex flex-col items-center space-y-4">
+      <button
+        class="bg-green-500 text-gray-800 font-semibold py-2 px-6 rounded-md shadow hover:bg-green-600 transition w-24"
+        (click)="toggleShift(shift)"
+      >
+        {{ shift.label }}
+      </button>
+
+      <div
+        class="flex flex-col items-center space-y-3 transition-all duration-300 overflow-hidden"
+        [class.max-h-0]="!shift.open"
+        [class.max-h-96]="shift.open"
+      >
+        <button
+          *ngFor="let time of shift.times"
+          (click)="selectTime(shift.label, time)"
+          class="bg-gray-800 p-2 rounded-xl"
+          [ngClass]="{
+            'bg-green-600 text-white': selectedShiftTime === time,
+            'bg-gray-700 hover:bg-gray-600': selectedShiftTime !== time
+          }"
+        >
+          {{ time }}
+        </button>
+      </div>
+            <p class="text-[14px] text-blue-400 mt-3">
+        Choose a time slot that fits your daily study routine.
+      </p>
+    </div>
+  </div>
+
+  <!-- Selected Plan Summary Card -->
+  <div
+    *ngIf="selectedPlanData && selectedShiftTime"
+    class="mt-10 bg-gray-800 border border-gray-700 rounded-xl p-5 shadow-lg text-white max-w-lg mx-auto"
+  >
+    <h3 class="text-xl font-semibold mb-4 text-center">Your Selection</h3>
+
+    <div class="space-y-2 text-center">
+      <p><span class="font-semibold">Plan:</span> {{ selectedPlanData.type }}</p>
+      <p><span class="font-semibold">Duration:</span> {{ selectedPlanData.hours }} hours</p>
+      <p><span class="font-semibold">Price:</span> ₹{{ selectedPlanData.amount }}</p>
+      <p><span class="font-semibold">Shift Time:</span> {{ selectedShiftLabel }} ({{ selectedShiftTime }})</p>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Step 3 -->
+    <!-- Step 3 -->
+<div *ngIf="currentStepIndex === 2">
+  <app-seat (seatSelected)="onSeatsSelected($event)"></app-seat>
+
+  <!-- Show selected seats summary -->
+  <div *ngIf="selectedSeats?.length" class="mt-6 bg-gray-800 p-4 rounded-xl text-white text-center">
+    <p class="font-semibold text-lg">🎟️ Selected Seats:</p>
+    <p>{{ selectedSeats.join(', ') }}</p>
+  </div>
+</div>
+
+
+    <!-- Step 4 -->
+   <!-- Step 4 – Payment Summary (Inline, No Component) -->
+<div *ngIf="currentStepIndex === 3">
+
+<body class="min-h-screen flex">
+
+
+
+  <!-- Right Section (Registration Form) -->
+  <div class="w-full flex justify-center items-center bg-gradient-to-br from-[#e9fce9] via-white to-[#dff5dc] relative">
+
+<div class="w-full max-w-3xl bg-white/60 backdrop-blur-xl rounded-3xl shadow-xl border border-white/40 p-10" style="padding: 15px;">
+
+      <h2 class="text-3xl font-extrabold text-center mb-6 text-[#1c3125]">
+        Student Registration Form
+      </h2>
+<br>
+      <form style="color: black;">
+        <!-- Row 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div  disabled="true">
+            <label class="block mb-2 font-medium text-gray-700">Full Name <span class="text-red-500">*</span></label>
+            <input  disabled="true" type="text" placeholder="Enter your full name" name="fullName" [(ngModel)]="fullName"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">Father’s Name <span class="text-red-500">*</span></label>
+            <input type="text" placeholder="Enter father's name" name="fatherName" [(ngModel)]="fatherName"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">Preparation For <span class="text-red-500">*</span></label>
+            <input type="text" placeholder="e.g., IIT-JEE / NEET" name="preparationFor" [(ngModel)]="preparationFor"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">Date of Birth <span class="text-red-500">*</span></label>
+            <input type="date" name="dob" [(ngModel)]="dob"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+        </div>
+
+        <!-- Row 3 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">Blood Group</label>
+            <select name="bloodGroup" [(ngModel)]="bloodGroup"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm">
+              <option value="">Select</option>
+              <option>A+</option><option>A-</option><option>B+</option><option>B-</option>
+              <option>O+</option><option>O-</option><option>AB+</option><option>AB-</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">Email <span class="text-red-500">*</span></label>
+            <input type="email" placeholder="example@email.com" name="emailReg" [(ngModel)]="emailReg"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
+            <input type="password" placeholder="password" name="regpassword" [(ngModel)]="regpassword"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+        </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <label class="block mb-2 font-medium text-gray-700">
+              Aadhaar Card Number <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              maxlength="12"
+              placeholder="Enter 12 digit Aadhaar number"
+              name="aadhaarNumber"
+              [(ngModel)]="aadhar"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl
+                    focus:ring-2 focus:ring-[#39d174] shadow-sm"
+            />
+          </div>
+
+          <div>
+            <label class="block mb-3 font-medium text-gray-700">
+              Gender <span class="text-red-500">*</span>
+            </label>
+
+            <div class="flex gap-6 mt-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="gender"
+                  [(ngModel)]="gender"
+                  value="Male"
+                  class="accent-[#39d174]"
+                />
+                <div class="text-gray-700">Male</div>
+              </label>
+
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="gender"
+                  [(ngModel)]="gender"
+                  value="Female"
+                  class="accent-[#39d174]"
+                />
+                <div class="text-gray-700">Female</div>
+              </label>
+
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="gender"
+                  [(ngModel)]="gender"
+                  value="Other"
+                  class="accent-[#39d174]"
+                />
+                <div class="text-gray-700">Other</div>
+              </label>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Row 4 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          <div  disabled="true">
+            <label class="block mb-2 font-medium text-gray-700" >Personal Number <span class="text-red-500">*</span></label>
+            <input disabled="true" type="text" maxlength="10" placeholder="Enter your mobile number" name="personalNumber"
+              (keypress)="allowOnlyNumbers($event)" [(ngModel)]="personalNumber"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+
+          <div>
+            <label class="block mb-2 font-medium text-gray-700"> Emergency Contact Number (Parent/Guardian) <span class="text-red-500">*</span></label>
+            <input type="text" maxlength="10" placeholder="Enter emergency contact number" name="emergencyNumber"
+              (keypress)="allowOnlyNumbers($event)" [(ngModel)]="emergencyNumber"
+              class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
+          </div>
+        </div>
+
+        <!-- Address -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+
+  <!-- PRESENT ADDRESS -->
+  <div>
+    <label class="block mb-2 font-medium text-gray-700">
+      Present Address <span class="text-red-500">*</span>
+    </label>
+
+    <input
+      type="text"
+      placeholder="Enter current address"
+      name="presentAddress"
+      [(ngModel)]="presentAddress"
+      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm"
+    />
+
+    <!-- CHECKBOX -->
+    <div class="flex items-center gap-3 mt-3">
+      <input
+        type="checkbox"
+        name="sameAsPresent"
+        [(ngModel)]="sameAsPresent"
+        (change)="onSameAddressToggle()"
+        class="h-5 w-5 accent-[#39d174]"
+      />
+      <label class="text-gray-700 font-medium">
+        Same as present address
+      </label>
+    </div>
+  </div>
+
+  <!-- PERMANENT ADDRESS -->
+  <div>
+    <label class="block mb-2 font-medium text-gray-700">
+      Permanent Address <span class="text-red-500">*</span>
+    </label>
+
+    <input
+      type="text"
+      placeholder="Enter permanent address"
+      name="permanentAddress"
+      [(ngModel)]="permanentAddress"
+      class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm"
+    />
+  </div>
+
+</div>
+
+      
+        <div class="flex justify mt-6 mb-3">
+          <div class="text">
+            <label  class="block mb-2 font-medium text-gray-700">Upload Photo</label>
+          <div class="upload-container">
+  <label class="title">Upload Photo</label>
+
+  <!-- RADIO BUTTONS -->
+  <div class="radio-group">
+    <label>
+      <input
+        type="radio"
+        name="uploadType"
+        value="file"
+        [(ngModel)]="uploadType"
+        (change)="resetAll()"
+      />
+      File Upload
+    </label>
+
+    <label>
+      <input
+        type="radio"
+        name="uploadType"
+        value="camera"
+        [(ngModel)]="uploadType"
+        (change)="resetAll()"
+      />
+      Camera
+    </label>
+  </div>
+
+  <!-- FILE UPLOAD -->
+  <div *ngIf="uploadType === 'file'" class="input-box">
+    <input type="file" accept="image/*" (change)="onFileSelect($event)" />
+  </div>
+
+  <!-- CAMERA -->
+ <div *ngIf="uploadType === 'camera' && isCameraVisible">
+  <video #video autoplay></video>
+  <button class="btn" (click)="capture()">Capture</button>
+</div>
+
+
+  <!-- IMAGE PREVIEW -->
+  <div *ngIf="imagePreview" class="">
+    <a target="_blank" [href]="imagePreview" style="color: blue;">View Image</a> &nbsp;
+    <!-- <label  (click)="deleteImage()">Delete</label> -->
+  </div>
+</div>
+
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+
+
+</div>
+<div *ngIf="currentStepIndex === 4">
+
+<section class="bg-gray-900 text-white p-6 rounded-2xl shadow-lg max-w-xl mx-auto mt-8 border border-gray-700">
+  <h2 class="text-3xl font-bold text-center mb-6 text-green-400">Payment Summary</h2>
+
+  <!-- Full Summary -->
+  <div class="space-y-4 text-sm mb-6">
+
+    <!-- Plan -->
+    <div class="flex justify-between">
+      <span class="text-gray-300">Plan Duration:</span>
+      <span class="font-semibold">{{ selectedPlanData?.hours }} Hrs</span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="text-gray-300">Plan Type:</span>
+      <span class="font-semibold">{{ selectedPlanData?.type }}</span>
+    </div>
+
+    <div class="flex justify-between">
+      <span class="text-gray-300">Plan Price:</span>
+      <span class="font-semibold">₹{{ selectedPlanData?.amount }}</span>
+    </div>
+    <div class="flex justify-between" *ngIf="selectedPlanData.type=='Monthly'">
+      <span class="text-gray-300">Registration Fee:</span>
+      <span class="font-semibold">₹ 200</span>
+    </div>
+
+    <!-- Shift -->
+    <div class="flex justify-between" *ngIf="selectedShiftLabel">
+      <span class="text-gray-300">Shift Duration:</span>
+      <span class="font-semibold">{{ selectedShiftLabel }}/day</span>
+    </div>
+
+    <div class="flex justify-between" *ngIf="selectedShiftTime">
+      <span class="text-gray-300">Shift Timing:</span>
+      <span class="font-semibold">{{ selectedShiftTime }}</span>
+    </div>
+
+    <!-- Seat -->
+    <div class="flex justify-between" *ngIf="selectedSeats?.length">
+      <span class="text-gray-300">Selected Seat No:</span>
+      <span class="font-semibold">{{ selectedSeats.join(', ') }}</span>
+    </div>
+
+    <div class="border-t border-gray-600 mt-3 pt-3 flex justify-between text-lg">
+      <span>Total Amount:</span>
+      <span class="font-bold text-green-400 text-xl" *ngIf="selectedPlanData.type != 'Monthly'">₹{{ selectedPlanData?.amount }}</span>
+      <span class="font-bold text-green-400 text-xl" *ngIf="selectedPlanData.type=='Monthly'">₹{{ selectedPlanData?.amount+200 }}</span>
+    </div>
+
+  </div>
+<!-- PAYMENT METHOD SELECTION -->
+<div class="mt-4 p-4 bg-gray-800 rounded-xl text-center border border-gray-600">
+  <h3 class="text-lg font-semibold mb-3">Select Payment Method</h3>
+
+  <div class="flex justify-center gap-6 text-white">
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="payMode" value="online" [(ngModel)]="paymentMode" checked>
+      <span>Online Payment</span>
+    </label>
+
+    <label class="flex items-center gap-2 cursor-pointer">
+      <input type="radio" name="payMode" value="cash" [(ngModel)]="paymentMode">
+      <span>Cash Payment</span>
+    </label>
+  </div>
+</div>
+
+
+
+</section>
+
+
+</div>
+
+  </div>
+
+  <!-- Navigation Buttons -->
+  <div class="flex justify-end gap-3 mt-6 mb-10">
+    <button
+      class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+      (click)="previous()"
+      [disabled]="currentStepIndex === 0"
+    >
+      ← Back
+    </button>
+
+    <button
+      class="px-6 py-2 bg-green-500 border border-gray-400 text-black font-medium rounded-lg hover:bg-green-600"
+      *ngIf="!isLastStep()"
+      (click)="next()"
+    >
+      Save & Next →
+    </button>
+
+    <button
+      class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+      *ngIf="isLastStep()"
+      (click)="submit()"
+        [disabled]="loading"
+
+    >
+      Submit
+    </button>
+  </div>
+</div>
+

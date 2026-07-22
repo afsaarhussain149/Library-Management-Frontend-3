@@ -1,0 +1,84 @@
+<nav
+  class=" top-0 left-0 w-full z-50 bg-white/30 backdrop-blur-md transition-transform duration-300"
+  [class.-translate-y-full]="isNavbarHidden"
+>
+  <div class="container mx-auto flex justify-between items-center px-4 py-2">
+
+    <!-- Logo -->
+    <a href="/home/user" class="flex items-center">
+      <img src="/logo.png" alt="Logo" class="h-16 w-auto" />
+    </a>
+
+    <!-- Hamburger / Cross Icon -->
+    <button class="md:hidden transition-all duration-300" (click)="toggleMenu()">
+      <svg *ngIf="!isMenuOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" class="w-8 h-8 text-black">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+
+      <svg *ngIf="isMenuOpen" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor" class="w-8 h-8 text-black transition-transform duration-300 rotate-180">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Desktop Menu -->
+    <div class="hidden md:flex items-center space-x-6 mr-4">
+      <a href="/home/user" class="text-black hover:text-gray-600 text-lg">Dashboard</a>
+      <!-- <a href="/home/user" class="text-black hover:text-gray-600 text-lg">Pay fee</a> -->
+      <a (click)="openComplaint.emit()" class="text-black hover:text-gray-600 text-lg">Complaint</a>
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+        fill="#22c55e" class="w-6 h-6 animate-pulse">
+        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
+      </svg>
+
+      <a
+        *ngIf="!isLoggedIn"
+        href="/login"
+        class="text-black hover:text-gray-600 text-lg"
+      >
+        Login
+      </a>
+
+      <button
+        *ngIf="isLoggedIn"
+        (click)="logout()"
+        class="text-black hover:text-gray-600 text-lg"
+      >
+        Logout
+      </button>
+    </div>
+  </div>
+
+  <!-- Smooth Mobile Menu -->
+  <div
+    class="md:hidden overflow-hidden transition-all duration-300"
+    [ngClass]="isMenuOpen ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'"
+  >
+    <div class="flex flex-col text-center bg-white/60 backdrop-blur-md py-4 space-y-2">
+      <a href="/home/user" class="text-black hover:text-gray-600 text-lg">Dashboard</a>
+      <!-- <a href="/home/user" class="text-black hover:text-gray-600 text-lg">Pay fee</a> -->
+      <a (click)="openComplaint.emit()" class="text-black hover:text-gray-600 text-lg">Complaint</a>
+      <!-- Login -->
+      <a
+        *ngIf="!isLoggedIn"
+        href="/login"
+        class="text-black hover:text-gray-600 text-lg"
+      >
+        Login
+      </a>
+
+      <!-- Logout -->
+      <button
+        *ngIf="isLoggedIn"
+        (click)="logout()"
+        class="text-black hover:text-gray-600 text-lg"
+      >
+        Logout
+      </button>
+    </div>
+  </div>
+</nav>
+
