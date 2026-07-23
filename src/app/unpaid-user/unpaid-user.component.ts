@@ -23,9 +23,9 @@ export class UnpaidUserComponent {
   ) {
     sessionStorage.clear()
   }
-    showUnpaidCard = false;
+  showUnpaidCard = false;
   unpaidPhone: string = '';
-checkUnpaidUser() {
+  checkUnpaidUser() {
 
     if (!this.unpaidPhone) {
       this.notificationsService.error('Error', 'Phone number required');
@@ -45,7 +45,7 @@ checkUnpaidUser() {
           this.notificationsService.success('Success', 'Unpaid user found');
 
           console.log(res.user);
-sessionStorage.setItem('takeuserdetails',JSON.stringify(res.user))
+          sessionStorage.setItem('takeuserdetails', JSON.stringify(res.user))
 
           // Navigate to payment page
           this.route.navigate(['/home/seat-booking']);
@@ -63,13 +63,13 @@ sessionStorage.setItem('takeuserdetails',JSON.stringify(res.user))
   // ---------- LOGIN VARIABLES ----------
   email: string = '';
   password: string = '';
-  username:any
-  phoneno:any
- onPhoneInput(event: any) {
+  username: any
+  phoneno: any
+  onPhoneInput(event: any) {
     event.target.value = event.target.value.replace(/[^0-9]/g, '').slice(0, 10);
     this.phoneno = event.target.value;
   }
-submitbasic(){
+  submitbasic() {
     if (!this.username || !this.phoneno) {
       this.notificationsService.error('Error', 'Name and Phone are required');
       return;
@@ -79,88 +79,86 @@ submitbasic(){
       this.notificationsService.error('Error', 'Phone number must be 10 digits');
       return;
     }
-  let payload ={
-  "fullName": this.username,
-  "phoneNumber": this.phoneno
-}
+    let payload = {
+      "fullName": this.username,
+      "phoneNumber": this.phoneno
+    }
     this.loading = true;
 
-this.homeservice.basicdetailsuser(payload).subscribe(
- {
-    // Backend /api/auth/register-basic sirf {success, message} deta hai,
-    // isliye register hone ke baad phone number se poora record fetch karte hain.
-    next:(data:any)=>{
-      this.http.post<any>(`${this.api}/api/auth/unpaid-user`, { phoneNumber: this.phoneno }).subscribe({
-        next: (res: any) => {
-          this.loading = false;
-          this.notificationsService.success('Success', 'Form submitted successfully');
-          sessionStorage.setItem('takeuserdetails', JSON.stringify(res.user));
-          this.route.navigate(['/home/seat-booking'])
+    this.homeservice.basicdetailsuser(payload).subscribe(
+      {
+        next: (data: any) => {
+          this.http.post<any>(`${this.api}/api/auth/unpaid-user`, { phoneNumber: this.phoneno }).subscribe({
+            next: (res: any) => {
+              this.loading = false;
+              this.notificationsService.success('Success', 'Form submitted successfully');
+              sessionStorage.setItem('takeuserdetails', JSON.stringify(res.user));
+              this.route.navigate(['/home/seat-booking'])
+            },
+            error: (err) => {
+              this.loading = false;
+              this.notificationsService.error('Error', err.error?.msg || 'Something went wrong');
+            }
+          });
         },
         error: (err) => {
           this.loading = false;
-          this.notificationsService.error('Error', err.error?.msg || 'Something went wrong');
+          this.notificationsService.error('Error', err.error.msg);
         }
-      });
-},
- error: (err) => {
-        this.loading = false;
-        this.notificationsService.error('Error', err.error.msg);
-      }
-})
-}
+      })
+  }
   // ---------- COMMON ----------
   loading = false;
   decodedToken: any;
   isFlipped: boolean = false;
 
   flipToRegister() {
-    this.username=''
-    this.phoneno=''
+    this.username = ''
+    this.phoneno = ''
     this.isFlipped = true;
-     this.showForgot = false;
+    this.showForgot = false;
   }
 
   flipToLogin() {
     this.route.navigate(['/login'])
-    this.email=''
-    this.password=''
-  
+    this.email = ''
+    this.password = ''
+
   }
-resetPhone:any;
-resetPassword:any;
-    api: any = 'https://api.foujibookgardenlibrary.com';
+  resetPhone: any;
+  resetPassword: any;
+  api: any = 'https://library-management-backend-3-62tq.onrender.com';
 
-resetPasswordApi(){
-  if(!this.resetPhone || !this.resetPassword || !this.confirmPassword){
-    this.notificationsService.warn("All fields required");
-    return;
+  resetPasswordApi() {
+    if (!this.resetPhone || !this.resetPassword || !this.confirmPassword) {
+      this.notificationsService.warn("All fields required");
+      return;
+    }
+
+    if (this.resetPassword !== this.confirmPassword) {
+      this.notificationsService.error("Passwords do not match");
+      return;
+    }
+
+
+    this.loading = true
+    this.http.post(`${this.api}/api/auth/reset-password`, {
+      phoneNumber: this.resetPhone,
+      newPassword: this.resetPassword
+    }).subscribe(res => {
+      this.notificationsService.success("Password updated successfully");
+      this.resetPhone = "";
+      this.resetPassword = "";
+      this.confirmPassword = "";
+      this.flipToLogin();
+
+      this.loading = false
+    }, err => {
+      this.loading = false
+
+      this.notificationsService.error(err.error?.msg || "Something went wrong");
+    });
   }
-
-  if(this.resetPassword !== this.confirmPassword){
-    this.notificationsService.error("Passwords do not match");
-    return;
-  }
-
-
-this.loading=true
-  this.http.post(`${this.api}/api/auth/reset-password`, {
-    phoneNumber: this.resetPhone,
-    newPassword: this.resetPassword
-  }).subscribe(res=>{
-    this.notificationsService.success("Password updated successfully");
-        this.resetPhone = "";
-    this.resetPassword = "";
-    this.confirmPassword = "";
-    this.flipToLogin();
-
-    this.loading=false
-  }, err=>{
-        this.loading=false
-
-    this.notificationsService.error(err.error?.msg || "Something went wrong");
-  });
-}
 
   // ---------- LOGIN API ----------
   loginapi() {
@@ -194,10 +192,10 @@ this.loading=true
       }
     });
   }
-showForgot = false;
+  showForgot = false;
 
 
-flipToForgot(){ this.showForgot = true; this.isFlipped = true; } // flip 2nd side
+  flipToForgot() { this.showForgot = true; this.isFlipped = true; } // flip 2nd side
 
 
 }

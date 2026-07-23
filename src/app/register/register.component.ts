@@ -56,8 +56,6 @@ export class RegisterComponent {
 
     this.homeservice.basicdetailsuser(payload).subscribe(
       {
-        // Backend /api/auth/register-basic sirf {success, message} deta hai,
-        // isliye register hone ke baad phone number se poora record fetch karte hain.
         next: (data: any) => {
           this.http.post<any>(`${this.api}/api/auth/unpaid-user`, { phoneNumber: this.phoneno }).subscribe({
             next: (res: any) => {
@@ -98,7 +96,7 @@ export class RegisterComponent {
   }
   resetPhone: any;
   resetPassword: any;
-  api: any = 'https://api.foujibookgardenlibrary.com';
+  api: any = 'https://library-management-backend-3-62tq.onrender.com';
 
   resetPasswordApi() {
     if (!this.resetPhone || !this.resetPassword || !this.confirmPassword) {

@@ -33,7 +33,7 @@ export class StudentDetailsComponent {
     clickToClose: true,
     maxLength: 200
   };
-  api: any = 'https://api.foujibookgardenlibrary.com';
+  api: any = 'https://library-management-backend-3-62tq.onrender.com';
   users: any[] = [];
   page = 1;
   totalPages = 0;

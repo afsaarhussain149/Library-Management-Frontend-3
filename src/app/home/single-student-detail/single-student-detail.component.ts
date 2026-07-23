@@ -138,7 +138,7 @@ export class SingleStudentDetailComponent implements OnInit {
 
     this.loading = true;
 
-    this.http.put('https://api.foujibookgardenlibrary.com/api/auth/user/edit-profile', formData).subscribe({
+    this.http.put('https://library-management-backend-3-62tq.onrender.com/api/auth/user/edit-profile', formData).subscribe({
       next: (res: any) => {
         this.notifications.success('Success', 'Profile updated successfully');
         sessionStorage.setItem('userdata', JSON.stringify("helo"));

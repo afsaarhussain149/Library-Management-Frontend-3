@@ -30,7 +30,7 @@ const routes: Routes = [
   { path: 'shift-time', component: ShiftTimeComponent, canActivate: [AuthGuard] }, // Default route for HomeModule
   { path: 'seat-booking', component: SeatBookingWizardComponent, canActivate: [SeatGuard] }, // Default route for HomeModule
   { path: 'user', component: UserPageComponent, canActivate: [AuthGuard] }, // Default route for HomeModule
-  { path: 'admin', component: AdminPageComponent,canActivate: [AuthGuard] }, // Default route for HomeModule
+  { path: 'admin', component: AdminPageComponent, canActivate: [AuthGuard] }, // Default route for HomeModule
   { path: 'fees-records', component: FeesRecordsComponent },
   { path: 'query', component: QueryComponent },
   { path: 'complaint', component: ComplaintComponent },

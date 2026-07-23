@@ -52,7 +52,7 @@ export class SeatComponent implements OnInit {
   loadBookedSeats() {
 
     this.http
-      .get<any>(`https://api.foujibookgardenlibrary.com/api/payments/seats/status?shift=${encodeURIComponent(this.shifttime)}`)
+      .get<any>(`https://library-management-backend-3-62tq.onrender.com/api/payments/seats/status?shift=${encodeURIComponent(this.shifttime)}`)
  // 🔁 your API
       .subscribe((res) => {
         if (!res?.seats) return;

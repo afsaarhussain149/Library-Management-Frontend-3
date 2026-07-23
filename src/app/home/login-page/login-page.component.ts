@@ -55,9 +55,6 @@ export class LoginPageComponent {
 
     this.homeservice.basicdetailsuser(payload).subscribe(
       {
-        // Backend /api/auth/register-basic sirf {success, message} deta hai,
-        // userId/newUser nahi — isliye register hone ke baad phone number se
-        // uska poora record /api/auth/unpaid-user se fetch karte hain.
         next: (data: any) => {
           this.http.post<any>(`${this.api}/api/auth/unpaid-user`, { phoneNumber: this.phoneno }).subscribe({
             next: (res: any) => {
@@ -74,7 +71,7 @@ export class LoginPageComponent {
         },
         error: (err) => {
           this.loading = false;
-          this.notificationsService.error('Error', err.error.msg);
+          this.notificationsService.error('Error', err.error.message);
         }
       })
   }
@@ -98,7 +95,7 @@ export class LoginPageComponent {
   }
   resetPhone: any;
   resetPassword: any;
-  api: any = 'https://api.foujibookgardenlibrary.com';
+  api: any = 'https://library-management-backend-3-62tq.onrender.com';
 
   resetPasswordApi() {
     if (!this.resetPhone || !this.resetPassword || !this.confirmPassword) {

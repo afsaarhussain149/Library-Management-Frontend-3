@@ -14,7 +14,7 @@ export class QueryComponent implements OnInit {
 constructor(private http:HttpClient,private notifications:NotificationsService){
   
 }
-  api: any = 'https://api.foujibookgardenlibrary.com';
+  api: any = 'https://library-management-backend-3-62tq.onrender.com';
   loading = false;
 
  loadQueries() {

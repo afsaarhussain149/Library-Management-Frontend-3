@@ -24,7 +24,7 @@ interface Students {
   styleUrl: './admin-page.component.css'
 })
 export class AdminPageComponent {
-  api: any = 'https://api.foujibookgardenlibrary.com';
+  api: any = 'https://library-management-backend-3-62tq.onrender.com';
   users: any[] = [];
   page = 1;
   notificationOptions: Options = {
