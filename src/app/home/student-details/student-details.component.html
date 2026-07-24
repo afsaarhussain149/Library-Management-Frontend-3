@@ -95,6 +95,7 @@
           <th class="px-4 py-3">User ID</th>
           <th class="px-4 py-3">Student</th>
           <th class="px-4 py-3">Plan</th>
+          <th class="px-4 py-3">Seats</th>
           <th class="px-4 py-3">Amount</th>
           <th class="px-4 py-3">Status</th>
           <th class="px-4 py-3">Date</th>
@@ -119,6 +120,27 @@
 
           <td class="px-4 py-3">
             {{ u.payment?.plan?.hours || '-' }} hrs
+          </td>
+
+          <td class="px-4 py-3">
+            <ng-container *ngIf="u.payment; else noSeatPayment">
+              <div class="flex items-center gap-2">
+                <span class="font-medium">
+                  {{ u.payment.seats?.length ? u.payment.seats.join(', ') : '-' }}
+                </span>
+                <button
+                  class="w-7 h-7 flex items-center justify-center
+                        bg-indigo-100 text-indigo-600
+                        rounded-lg hover:bg-indigo-200
+                        transition"
+                  title="Change Seat"
+                  (click)="openSeatModal(u)"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+              </div>
+            </ng-container>
+            <ng-template #noSeatPayment>-</ng-template>
           </td>
 
           <td class="px-4 py-3">
@@ -223,7 +245,7 @@
         bg-white/20 backdrop-blur-sm p-4"
 >
   <div
-    class="bg-white w-full max-w-md rounded-2xl shadow-xl p-6 relative animate-fadeIn
+    class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fadeIn
           flex flex-col space-y-6"
   >
 
@@ -273,5 +295,123 @@
       </button>
     </div>
 
+  </div>
+</div>
+
+
+<!-- Change Seat Modal -->
+<div
+  *ngIf="showSeatModal"
+  class="fixed inset-0 flex items-center justify-center z-[999]
+        bg-white/20 backdrop-blur-sm p-4"
+>
+  <div
+    class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fadeIn
+          flex flex-col space-y-6"
+  >
+    <button
+      (click)="closeSeatModal()"
+      class="absolute top-3 right-3 text-gray-500 hover:text-black text-lg"
+    >
+      ✖
+    </button>
+
+    <h2 class="text-xl font-semibold text-center">
+      Change Seat
+    </h2>
+
+    <p class="text-center text-gray-600">
+      Reassigning seat for
+      <span class="font-semibold">{{ selectedUser?.fullName }}</span>
+      (User ID: {{ selectedUser?.userId }})
+    </p>
+
+    <div>
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        New Seat Number(s)
+      </label>
+<p class="text-center text-sm text-gray-500 -mt-4" *ngIf="selectedUser?.payment?.shift?.time">
+  Shift: {{ selectedUser.payment.shift.label }} ({{ selectedUser.payment.shift.time }})
+</p>
+
+<div>
+  <label class="block text-sm font-medium text-gray-700 mb-2">
+    Select New Seat
+  </label>
+
+  <div *ngIf="seatStatusLoading" class="text-center text-sm text-gray-500 py-4">
+    Loading seat availability...
+  </div>
+
+  <div
+    *ngIf="!seatStatusLoading && seatStatusList.length"
+    class="grid grid-cols-8 gap-2 max-h-64 overflow-y-auto p-1 border rounded-lg"
+  >
+    <button
+      *ngFor="let seat of seatStatusList"
+      type="button"
+      [disabled]="seat.status === 'booked'"
+      (click)="toggleSeat(seat)"
+      class="w-9 h-9 text-xs rounded-lg border font-medium transition"
+      [ngClass]="{
+        'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-200 cursor-pointer': seat.status === 'available' && !isSelected(seat.seatNo),
+        'bg-red-100 text-red-400 border-red-200 cursor-not-allowed opacity-70': seat.status === 'booked',
+        'bg-blue-100 text-blue-700 border-blue-300 hover:bg-blue-200 cursor-pointer': seat.status === 'current' && !isSelected(seat.seatNo),
+        'bg-green-600 text-white border-green-600': isSelected(seat.seatNo)
+      }"
+    >
+      {{ seat.seatNo }}
+    </button>
+  </div>
+
+  <!-- Legend -->
+  <div class="flex flex-wrap gap-4 mt-3 text-xs text-gray-600">
+    <span class="flex items-center gap-1">
+      <span class="w-3 h-3 rounded bg-gray-50 border border-gray-300 inline-block"></span> Available
+    </span>
+    <span class="flex items-center gap-1">
+      <span class="w-3 h-3 rounded bg-blue-100 border border-blue-300 inline-block"></span> Student's Current
+    </span>
+    <span class="flex items-center gap-1">
+      <span class="w-3 h-3 rounded bg-red-100 border border-red-200 inline-block"></span> Booked (others)
+    </span>
+    <span class="flex items-center gap-1">
+      <span class="w-3 h-3 rounded bg-green-600 inline-block"></span> Selected
+    </span>
+  </div>
+
+  <p class="text-sm text-gray-600 mt-3" *ngIf="selectedSeats.length">
+    Selected: <span class="font-semibold">{{ selectedSeats.join(', ') }}</span>
+  </p>
+
+  <p *ngIf="seatChangeError" class="text-sm text-red-600 mt-2">
+    {{ seatChangeError }}
+  </p>
+</div>
+      <p class="text-xs text-gray-400 mt-1">
+        Input seat
+      </p>
+      <p *ngIf="seatChangeError" class="text-sm text-red-600 mt-2">
+        {{ seatChangeError }}
+      </p>
+    </div>
+
+    <div class="flex justify-center gap-4">
+      <button
+        (click)="closeSeatModal()"
+        [disabled]="seatChangeLoading"
+        class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
+      >
+        Cancel
+      </button>
+
+      <button
+        (click)="confirmSeatChange()"
+        [disabled]="seatChangeLoading"
+        class="px-6 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition disabled:opacity-50"
+      >
+        {{ seatChangeLoading ? 'Saving...' : 'Save Seat' }}
+      </button>
+    </div>
   </div>
 </div>
