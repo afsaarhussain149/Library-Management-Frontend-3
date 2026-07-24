@@ -373,7 +373,7 @@ export class SeatBookingWizardComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.sessiondata = JSON.parse(sessionStorage.getItem('userdata') || '{}');
+    // this.sessiondata = JSON.parse(sessionStorage.getItem('userdata') || '{}');
     // If you want previously saved wizard state, you can load it here:
     // const saved = sessionStorage.getItem('wizard_state');
     // if (saved) {
@@ -385,7 +385,29 @@ export class SeatBookingWizardComponent implements OnInit {
     sessionStorage.removeItem('wizard_state');
 
     // User session (keep this)
+    // User session (keep this)
     this.sessiondata = JSON.parse(sessionStorage.getItem('userdata') || '{}');
+
+    // 🔁 RENEW PLAN: if the student came here via the header's "Renew Plan"
+    // button, prefill the "User Details" step from their existing profile
+    // instead of making them type everything again.
+    const renewProfileRaw = sessionStorage.getItem('renew_user_profile');
+    if (renewProfileRaw) {
+      const p = JSON.parse(renewProfileRaw);
+      this.fullName = p.fullName || '';
+      this.fatherName = p.fatherName || '';
+      this.preparationFor = p.preparationFor || '';
+      this.dob = p.dob ? p.dob.substring(0, 10) : '';
+      this.bloodGroup = p.bloodGroup || '';
+      this.emailReg = p.email || '';
+      this.personalNumber = p.personalNumber || '';
+      this.emergencyNumber = p.emergencyNumber || '';
+      this.presentAddress = p.presentAddress || '';
+      this.permanentAddress = p.permanentAddress || '';
+      this.aadhar = p.aadh || '';
+      this.gender = p.gender || '';
+      // password intentionally left blank - student re-enters it for security
+    }
 
     // 🔄 2. Reset all wizard variables
     this.currentStepIndex = 0;
