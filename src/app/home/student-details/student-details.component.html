@@ -92,7 +92,7 @@
     <table class="min-w-full text-left border-collapse">
       <thead>
         <tr class="border-b bg-gray-100">
-          <th class="px-4 py-3">User ID</th>
+          <th class="px-4 py-3">Student ID</th>
           <th class="px-4 py-3">Student</th>
           <th class="px-4 py-3">Plan</th>
           <th class="px-4 py-3">Seats</th>
@@ -163,32 +163,32 @@
           <td class="px-4 py-3">
             {{ u.payment?.createdAt | date:'dd MMM yyyy' }}
           </td>
-<td class="px-4 py-3">
+          <td class="px-4 py-3">
 
-  <!-- If payment exists -->
-  <ng-container *ngIf="u.payment; else noPayment">
+            <!-- If payment exists -->
+            <ng-container *ngIf="u.payment; else noPayment">
 
-    <span
-      class="px-3 py-1 text-xs rounded-full cursor-pointer"
-      [ngClass]="{
-        'bg-green-100 text-green-700': u.payment.isActive === true,
-        'bg-red-100 text-red-700': u.payment.isActive === false
-      }"
-      (click)="openStatusModal(u)"
-    >
-      {{ u.payment.isActive === true ? 'Active' : 'Inactive' }}
-    </span>
+              <span
+                class="px-3 py-1 text-xs rounded-full cursor-pointer"
+                [ngClass]="{
+                  'bg-green-100 text-green-700': u.payment.isActive === true,
+                  'bg-red-100 text-red-700': u.payment.isActive === false
+                }"
+                (click)="openStatusModal(u)"
+              >
+                {{ u.payment.isActive === true ? 'Active' : 'Inactive' }}
+              </span>
 
-  </ng-container>
+            </ng-container>
 
-  <!-- If no payment -->
-  <ng-template #noPayment>
-    <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
-      N/A
-    </span>
-  </ng-template>
+            <!-- If no payment -->
+            <ng-template #noPayment>
+              <span class="px-3 py-1 text-xs rounded-full bg-gray-100 text-gray-600">
+                N/A
+              </span>
+            </ng-template>
 
-</td>
+          </td>
           <td class="px-4 py-3">
             <button
               class="w-10 h-10 flex items-center justify-center

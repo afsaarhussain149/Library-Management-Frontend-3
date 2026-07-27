@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 import { NotificationsService, Options, } from 'angular2-notifications';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
+import { forkJoin } from 'rxjs';
 
 interface Students {
   studentId: number;
@@ -345,9 +346,39 @@ export class StudentDetailsComponent {
       this.showStatusModal = false;
     });
   }
+
+  // viewUser(data: any) {
+  //   sessionStorage.setItem("studentDATA", JSON.stringify(data))
+  //   this.router.navigate(['/home/single-student-detail']);
+  // }
+
   viewUser(data: any) {
-    sessionStorage.setItem("studentDATA", JSON.stringify(data))
-    this.router.navigate(['/home/single-student-detail']);
-  }
+  this.loading = true;
+
+  // dono APIs ek saath call karo — poori user profile + poora payment history
+  const userDetails$ = this.http.get<any>(`${this.api}/api/auth/all-users`, {
+    params: { userId: data.userId }
+  });
+
+  const userPayments$ = this.http.get<any>(`${this.api}/api/payments/user/${data.userId}`);
+
+  forkJoin([userDetails$, userPayments$]).subscribe({
+    next: ([profileRes, paymentsRes]) => {
+      const combined = {
+        ...data,                                   
+        profile: profileRes?.data?.[0] || null,      
+        payments: paymentsRes?.data || paymentsRes    
+      };
+
+      sessionStorage.setItem("studentDATA", JSON.stringify(combined));
+      this.loading = false;
+      this.router.navigate(['/home/single-student-detail']);
+    },
+    error: () => {
+      this.loading = false;
+      this.notifiaction.error('Error', 'Failed to load student details');
+    }
+  });
+}
 
 }

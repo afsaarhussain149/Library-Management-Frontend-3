@@ -171,7 +171,7 @@ export class LoginPageComponent {
           this.loading = false;
 
           console.error("Login Error:", err);
-          this.notificationsService.error('Error', err.error.msg);
+          this.notificationsService.error('Error', err.error.message);
         },
 
         complete: () => {

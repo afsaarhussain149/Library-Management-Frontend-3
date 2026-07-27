@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class homeService {
-  private apiUrl = 'https://library-management-backend-3-62tq.onrender.com';
+  apiUrl = 'https://library-management-backend-3-62tq.onrender.com';
 
   constructor(private http: HttpClient) {}
 
@@ -63,5 +63,13 @@ export class homeService {
 
   getBookedSeatsByPlan(planId: string): Observable<any> {
     return this.http.get(`${this.apiUrl}/api/seat-selection/plan/${planId}`);
+  }
+
+  getFullMediaUrl(path: string | null | undefined): string {
+    if (!path) return '';
+    if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('data:')) {
+      return path;
+    }
+    return `${this.apiUrl}${path.startsWith('/') ? path : '/' + path}`;
   }
 }
