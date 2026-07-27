@@ -1,6 +1,6 @@
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { homeService } from '../../shared/api-client/home.services';
-import { Router } from '@angular/router';   // ✅ ADD THIS
+import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { NotificationsService, Options } from 'angular2-notifications';
 
@@ -16,14 +16,15 @@ export class HomeTsComponent implements OnInit, AfterViewInit {
   constructor(
     private homeServices: homeService,
     private http: HttpClient,
-    private router: Router ,
-        private notificationsService: NotificationsService,
-               // ✅ ADD THIS
+    private router: Router,
+    private notificationsService: NotificationsService,
   ) { }
-name:any
-mail:any
-message:any
-subject:any
+
+
+  name: any
+  mail: any
+  message: any
+  subject: any
   api: any = 'https://library-management-backend-3-62tq.onrender.com';
 
   mobileMenuOpen = false;
@@ -34,33 +35,53 @@ subject:any
     sessionStorage.clear()
     this.tryPlayVideo();
   }
-save(){
-  let payload={
-  "name": this.name,
-  "mail": this.mail,
-  "subject": this.subject,
-  "message": this.message
-}
-console.log(payload);
+
+  save() {
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (
+      !this.name?.trim() ||
+      !this.mail?.trim() ||
+      !this.subject?.trim() ||
+      !this.message?.trim()
+    ) {
+      this.notificationsService.error('Error', 'All fields are required');
+      return;
+    }
+
+    if (!emailPattern.test(this.mail)) {
+      this.notificationsService.error('Error', 'Please enter a valid email address');
+      return;
+    }
+
+    let payload = {
+      "name": this.name,
+      "mail": this.mail,
+      "subject": this.subject,
+      "message": this.message
+    }
+
     this.loading = true;
 
-    this.http.post<any>(`${this.api}/api/query`,payload).subscribe({
+    this.http.post<any>(`${this.api}/api/query`, payload).subscribe({
       next: () => {
-        this.notificationsService.success('success','Query submitted successfully!')
+        this.notificationsService.success('success', 'Query submitted successfully!')
         this.loading = false;
-        this.mail=''
-        this.name=''
-        this.subject=''
-        this.message=''
+        this.mail = ''
+        this.name = ''
+        this.subject = ''
+        this.message = ''
       },
       error: () => {
-         this.notificationsService.error('Error submitting query');
+        this.notificationsService.error('Error submitting query');
         this.loading = false;
       }
     });
-  
-}
-notificationOptions: Options = {
+
+  }
+
+  notificationOptions: Options = {
     position: ['top', 'right'],   // 👈 always top-right of screen
     timeOut: 4000,
     showProgressBar: true,
@@ -72,7 +93,6 @@ notificationOptions: Options = {
     const video = this.bgVideo.nativeElement;
     video.muted = true;
     video.play().catch(err => {
-      console.warn('Autoplay blocked, waiting for user interaction...', err);
       this.triedPlaying = false;
     });
   }
@@ -94,10 +114,10 @@ notificationOptions: Options = {
   }
 
   ngOnInit(): void {
-    this.name=''
-this.mail=''
-this.message=''
-this.subject=''
+    this.name = ''
+    this.mail = ''
+    this.message = ''
+    this.subject = ''
     const payload = {
       "fullName": "John Do88se",
       "email": "john@ex;amp9le.com",

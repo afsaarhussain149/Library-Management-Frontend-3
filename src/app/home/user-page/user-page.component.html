@@ -364,7 +364,7 @@
                 Phone No
               </span>
               <input class="input-line"
-                     [(ngModel)]="form.personalNumber">
+                     [(ngModel)]="form.personalNumber" disabled >
             </div>
 
             <div class="flex flex-col sm:flex-row sm:items-center">
@@ -488,7 +488,8 @@
             <th class="py-3 px-4 text-gray-600 font-medium">Shift/Months</th>
             <th class="py-3 px-4 text-gray-600 font-medium">Payment</th>
             <th class="py-3 px-4 text-gray-600 font-medium">Status</th>
-            <th class="py-3 px-4 text-gray-600 font-medium">Date/Time</th>
+            <th class="py-3 px-4 text-gray-600 font-medium">Payment Date</th>
+            <th class="py-3 px-4 text-gray-600 font-medium">Plan End Date</th>
           </tr>
         </thead>
 
@@ -499,20 +500,20 @@
           >
               <td class="py-4 px-4">
               <div class="text-lg font-medium text-gray-800">
-                {{  userdata.userId }}
+                {{  product.paymentId }}
               </div>
             </td>
 
 
             <td class="py-4 px-4">
               <div class="text-lg font-medium text-gray-800">
-                {{ product.plan.hours }} Hours / {{product.plan.type}}
+                {{ product.planHours }} Hours / {{product.planType}}
               </div>
             </td>
 
             <td class="py-4 px-4">
               <div class="text-lg font-medium text-gray-800">
-                {{ product.amount/100 }}
+                {{ product.planAmount }}
               </div>
             </td>
 
@@ -527,7 +528,13 @@
 
             <td class="py-4 px-4">
               <div class="text-lg font-medium text-gray-800">
-                {{ product.createdAt | date:'dd-MM-yyyy / HH : mm' }}
+                {{ product.createdAt | date:'dd-MM-yyyy' }}
+              </div>
+            </td>
+
+            <td class="py-4 px-4">
+              <div class="text-lg font-medium text-gray-800">
+                {{ product.endPlanDate | date:'dd-MM-yyyy' }}
               </div>
             </td>
             

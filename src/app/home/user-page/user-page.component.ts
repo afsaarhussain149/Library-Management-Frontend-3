@@ -207,7 +207,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
       this.paymentdata = data.data
       console.log(this.paymentdata);
 
-      // Backend "seats" ko comma-separated string me deta hai (e.g. "12,13"), array nahi
       const rawSeats = data.data?.[0]?.seats;
       const seatList = typeof rawSeats === 'string' && rawSeats.length
         ? rawSeats.split(',').map((s: string) => Number(s.trim()))
