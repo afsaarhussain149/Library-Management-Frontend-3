@@ -9,21 +9,22 @@ import { Router } from '@angular/router';
   styleUrl: './single-student-detail.component.css'
 })
 export class SingleStudentDetailComponent implements OnInit {
-  data: any
+  data: any = {};
   loading: boolean = false;
+
   ngOnInit(): void {
-    this.data = JSON.parse(sessionStorage.getItem('studentDATA') || '')
+    const raw = sessionStorage.getItem('studentDATA');
+    this.data = raw ? JSON.parse(raw) : {};
 
-    console.log(this.data);
-    this.openEditProfile()
-
+    console.log('studentDATA:', this.data);
+    this.openEditProfile();
   }
 
   downloadForm() {
     window.print();
   }
   notificationOptions: Options = {
-    position: ['top', 'right'],   // 👈 always top-right of screen
+    position: ['top', 'right'],
     timeOut: 4000,
     showProgressBar: true,
     pauseOnHover: true,
@@ -39,37 +40,44 @@ export class SingleStudentDetailComponent implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
 
-    return `${year}-${month}-${day}`; // MUST be yyyy-MM-dd
+    return `${year}-${month}-${day}`;
   }
   routeback() {
     this.Rout.navigate(['/home/students-details'])
   }
+
   openEditProfile() {
-    // Note: backend ki students-list query me fatherName, gender, dob,
-    // emergencyNumber, addresses, aadh, photo columns select hi nahi hote
-    // (sirf listing ke liye banayi gayi query hai), isliye yeh fields yahan
-    // khaali aayenge jab tak backend me ek "get full user by id" endpoint
-    // add na ho. Crash na ho isliye sab jagah safe defaults use kar rahe hain.
+    // /api/auth/all-users?userId=X ka response: { success, total, data: [{...}] }
+    // data.profile me wahi first object aayega
+    const profile = this.data?.profile || {};
+
     this.form = {
-      fullName: this.data.fullName,
-      fatherName: this.data.fatherName || '',
-      gender: this.data.gender || '',
-      createdAt: this.formatToMMDDYYYY(this.data.createdAt),
-      dob: this.formatToMMDDYYYY(this.data.dob),
-      email: this.data.email || '',
-      personalNumber: this.data.personalNumber || '',
-      emergencyNumber: this.data.emergencyNumber || '',
-      presentAddress: this.data.presentAddress || '',
-      permanentAddress: this.data.permanentAddress || '',
-      aadh: this.data.aadh || '',
-      photo: this.data.photo || '',
-      seat: this.data.payment?.seats?.[0],
-      slot: this.data.payment?.shift?.time,
-      hour: this.data.payment?.shift?.hour,
+      fullName: profile.full_name || this.data?.fullName || '',
+      fatherName: profile.father_name || '',
+      gender: profile.gender || '',
+      createdAt: this.formatToMMDDYYYY(profile.created_at),
+      dob: this.formatToMMDDYYYY(profile.dob),
+      email: profile.email || '',
+      personalNumber: profile.personal_number || this.data?.phoneNumber || '',
+      emergencyNumber: profile.emergency_number || '',
+      presentAddress: profile.present_address || '',
+      permanentAddress: profile.permanent_address || '',
+      aadh: profile.aadhar_number || '',
+      photo: this.getPhotoUrl(profile.photo),
+      seat: this.data?.payment?.seats?.[0],
+      slot: this.data?.payment?.shift?.time,
+      hour: this.data?.payment?.shift?.hour,
       password: ''
     };
-
   }
+
+  private readonly API_BASE_URL = 'https://library-management-backend-3-62tq.onrender.com';
+  getPhotoUrl(photo: string | null | undefined): string {
+    if (!photo) return '';
+    if (photo.startsWith('http') || photo.startsWith('data:')) return photo;
+    return `${this.API_BASE_URL}${photo.startsWith('/') ? photo : '/' + photo}`;
+  }
+
   form: any = {
     fullName: '',
     fatherName: '',
@@ -95,7 +103,6 @@ export class SingleStudentDetailComponent implements OnInit {
 
     const file = input.files[0];
 
-    // validate image
     if (!file.type.startsWith('image/')) {
       alert('Please select an image file');
       return;
@@ -104,7 +111,7 @@ export class SingleStudentDetailComponent implements OnInit {
     const reader = new FileReader();
 
     reader.onload = () => {
-      this.form.photo = reader.result as string; // base64 preview
+      this.form.photo = reader.result as string;
     };
 
     reader.readAsDataURL(file);
@@ -113,6 +120,7 @@ export class SingleStudentDetailComponent implements OnInit {
   removePhoto(): void {
     this.form.photo = '';
   }
+
   updateProfile() {
     const formData = new FormData();
 
@@ -142,7 +150,6 @@ export class SingleStudentDetailComponent implements OnInit {
       next: (res: any) => {
         this.notifications.success('Success', 'Profile updated successfully');
         sessionStorage.setItem('userdata', JSON.stringify("helo"));
-        debugger
         this.Rout.navigate(['/home/students-details']);
         this.loading = false;
       },

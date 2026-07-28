@@ -353,32 +353,32 @@ export class StudentDetailsComponent {
   // }
 
   viewUser(data: any) {
-  this.loading = true;
+    this.loading = true;
 
-  // dono APIs ek saath call karo — poori user profile + poora payment history
-  const userDetails$ = this.http.get<any>(`${this.api}/api/auth/all-users`, {
-    params: { userId: data.userId }
-  });
+    const userDetails$ = this.http.get<any>(`${this.api}/api/auth/all-users`, {
+      params: { userId: data.userId }
+    });
 
-  const userPayments$ = this.http.get<any>(`${this.api}/api/payments/user/${data.userId}`);
+    const userPayments$ = this.http.get<any>(`${this.api}/api/payments/user/${data.userId}`);
 
-  forkJoin([userDetails$, userPayments$]).subscribe({
-    next: ([profileRes, paymentsRes]) => {
-      const combined = {
-        ...data,                                   
-        profile: profileRes?.data?.[0] || null,      
-        payments: paymentsRes?.data || paymentsRes    
-      };
+    forkJoin([userDetails$, userPayments$]).subscribe({
+      next: ([profileRes, paymentsRes]) => {
+        const combined = {
+          ...data,
+          profile: profileRes?.data?.[0] || null,
+          payments: paymentsRes?.data || []
+        };
 
-      sessionStorage.setItem("studentDATA", JSON.stringify(combined));
-      this.loading = false;
-      this.router.navigate(['/home/single-student-detail']);
-    },
-    error: () => {
-      this.loading = false;
-      this.notifiaction.error('Error', 'Failed to load student details');
-    }
-  });
-}
+        sessionStorage.setItem("studentDATA", JSON.stringify(combined));
+        this.loading = false;
+        this.router.navigate(['/home/single-student-detail']);
+      },
+      error: (err) => {
+        this.loading = false;
+        console.error('viewUser error:', err);
+        this.notifiaction.error('Error', 'Failed to load student details');
+      }
+    });
+  }
 
 }
