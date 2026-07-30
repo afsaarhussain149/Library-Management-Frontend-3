@@ -301,7 +301,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
       preparationFor: this.userdata.preparationFor,
       presentAddress: this.userdata.presentAddress,
       permanentAddress: this.userdata.permanentAddress,
-      aadh: this.userdata.aadh,
+      aadh: this.userdata.aadh || this.userdata?.aadharNumber,
       photo: this.userdata.photo
     };
 
