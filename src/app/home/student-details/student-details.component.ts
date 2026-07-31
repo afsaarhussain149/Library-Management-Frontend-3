@@ -19,6 +19,17 @@ interface Students {
   shiftDate: string;
 }
 
+// Same duration -> time-slot groups used by the student booking wizard.
+// Kept here so admin seat-edit can only offer times within the student's
+// existing plan duration (changing duration/plan itself is not this flow's job).
+const SHIFT_GROUPS: { label: string; times: string[] }[] = [
+  { label: '4 Hrs', times: ['8:00 AM - 12:00 PM', '10:00 AM - 2:00 PM', '12:00 PM - 4:00 PM', '2:00 PM - 6:00 PM', '4:00 PM - 8:00 PM', '6:00 PM - 10:00 PM'] },
+  { label: '6 Hrs', times: ['8:00 AM - 2:00 PM', '10:00 AM - 4:00 PM', '12:00 PM - 6:00 PM', '2:00 PM - 8:00 PM', '4:00 PM - 10:00 PM'] },
+  { label: '8 Hrs', times: ['8:00 AM - 4:00 PM', '10:00 AM - 6:00 PM', '12:00 PM - 8:00 PM', '2:00 PM - 10:00 PM'] },
+  { label: '10 Hrs', times: ['8:00 AM - 6:00 PM', '10:00 AM - 8:00 PM', '12:00 PM - 10:00 PM'] },
+  { label: '14 Hrs', times: ['8:00 AM - 10:00 PM'] },
+];
+
 @Component({
   selector: 'app-student-details',
   standalone: false,
@@ -221,14 +232,34 @@ export class StudentDetailsComponent {
   seatStatusList: { seatNo: number; status: 'available' | 'booked' | 'current' }[] = [];
   selectedSeats: number[] = [];
 
+  // -------------------- CHANGE TIME (Admin, part of seat edit) --------------------
+  currentShiftLabel: string | null = null;   // student's original duration group (e.g. "6 Hrs")
+  currentShiftTime: string | null = null;    // student's original time slot
+  selectedShiftLabel: string | null = null;  // time group actually being applied
+  selectedShiftTime: string | null = null;   // time slot actually being applied
+  timeOptions: { time: string; available: boolean }[] = [];
+  timeOptionsLoading = false;
+  timeChangePossible = false; // true only if some OTHER time slot is actually free for the chosen seat
+
   openSeatModal(user: any) {
     this.selectedUser = user;
     this.seatChangeError = '';
     const currentSeats: number[] = user.payment?.seats || [];
     this.selectedSeats = currentSeats.length ? [currentSeats[0]] : [];
     this.seatStatusList = [];
+
+    this.currentShiftLabel = user.payment?.shift?.label || null;
+    this.currentShiftTime = user.payment?.shift?.time || null;
+    this.selectedShiftLabel = this.currentShiftLabel;
+    this.selectedShiftTime = this.currentShiftTime;
+    this.timeOptions = [];
+    this.timeChangePossible = false;
+
     this.showSeatModal = true;
     this.loadSeatAvailability(user);
+    if (this.selectedSeats.length) {
+      this.loadTimeOptionsForSeat(this.selectedSeats[0]);
+    }
   }
 
   closeSeatModal() {
@@ -236,10 +267,66 @@ export class StudentDetailsComponent {
     this.seatChangeError = '';
   }
 
+  // For the given seat number, checks every time slot within the student's current
+  // duration group and marks which ones are actually free (student's own bookings
+  // excluded, so their current slot always shows as available to themselves).
+  // timeChangePossible is true only when at least one OTHER slot besides the
+  // current one is free - that's what enables the time picker in the UI; otherwise
+  // it stays disabled and only the current time can be kept.
+  loadTimeOptionsForSeat(seatNo: number) {
+    this.timeOptions = [];
+    this.timeChangePossible = false;
+
+    const group = SHIFT_GROUPS.find(g => g.label === this.currentShiftLabel);
+    if (!seatNo || !group || !this.selectedUser?.userId) return;
+
+    this.timeOptionsLoading = true;
+    const checks = group.times.map(time =>
+      this.http.get<any>(`${this.api}/api/payments/seat/check`, {
+        params: {
+          seatNo: String(seatNo),
+          shift: time,
+          excludeUserId: String(this.selectedUser.userId)
+        }
+      })
+    );
+
+    forkJoin(checks).subscribe({
+      next: (results: any[]) => {
+        this.timeOptions = group.times.map((time, i) => ({ time, available: !!results[i]?.success }));
+        this.timeChangePossible = this.timeOptions.some(t => t.available && t.time !== this.currentShiftTime);
+
+        // if the currently chosen time is no longer valid for this seat, fall back to current time
+        const stillValid = this.timeOptions.find(t => t.time === this.selectedShiftTime && t.available);
+        if (!stillValid) {
+          this.selectedShiftLabel = this.currentShiftLabel;
+          this.selectedShiftTime = this.currentShiftTime;
+        }
+        this.timeOptionsLoading = false;
+      },
+      error: () => {
+        this.timeOptions = [];
+        this.timeChangePossible = false;
+        this.timeOptionsLoading = false;
+      }
+    });
+  }
+
+  selectTime(opt: { time: string; available: boolean }) {
+    if (!this.timeChangePossible || !opt.available) return;
+    if (this.selectedShiftTime === opt.time) return;
+
+    this.selectedShiftLabel = this.currentShiftLabel;
+    this.selectedShiftTime = opt.time;
+    this.seatChangeError = '';
+    // seat grid availability depends on the time slot, so refresh it for the new time
+    this.loadSeatAvailability(this.selectedUser, opt.time);
+  }
+
   // Fetches live seat status for this student's shift and marks the
   // student's own current seat(s) separately from seats booked by others.
-  loadSeatAvailability(user: any) {
-    const shiftTime = user.payment?.shift?.time;
+  loadSeatAvailability(user: any, overrideShiftTime?: string) {
+    const shiftTime = overrideShiftTime || user.payment?.shift?.time;
 
     if (!shiftTime) {
       this.seatChangeError = 'Shift time not found for this student, cannot check seat availability';
@@ -248,6 +335,7 @@ export class StudentDetailsComponent {
     }
 
     const currentSeats: number[] = user.payment?.seats || [];
+    const isOriginalTime = shiftTime === (user.payment?.shift?.time || null);
     this.seatStatusLoading = true;
 
     this.http.get<any>(`${this.api}/api/payments/seats/status`, {
@@ -259,14 +347,26 @@ export class StudentDetailsComponent {
           .filter((s: any) => s.seatNo <= 68)   // only 68 seats actually exist
           .map((s: any) => {
             let status: 'available' | 'booked' | 'current' = 'available';
-            if (currentSeats.includes(s.seatNo)) {
-              status = 'current';        // this student's own seat right now
+            if (isOriginalTime && currentSeats.includes(s.seatNo)) {
+              status = 'current';        // this student's own seat, at their original time
             } else if (s.status === 'booked') {
-              status = 'booked';         // taken by someone else, same/overlapping shift
+              status = 'booked';         // taken (by someone else) for this time slot
             }
             return { seatNo: s.seatNo, status };
           });
         this.seatStatusLoading = false;
+
+        // if a new time slot was picked and the previously selected seat is no
+        // longer available there, clear it so admin has to re-pick
+        if (this.selectedSeats.length) {
+          const stillOk = this.seatStatusList.find(
+            s => s.seatNo === this.selectedSeats[0] && s.status !== 'booked'
+          );
+          if (!stillOk) {
+            this.selectedSeats = [];
+            this.seatChangeError = 'Previously selected seat is not available at this time. Please pick another seat.';
+          }
+        }
       },
       error: () => {
         this.seatChangeError = 'Failed to load seat availability';
@@ -282,8 +382,12 @@ export class StudentDetailsComponent {
     // clicking any other seat replaces the current selection
     if (this.selectedSeats.length === 1 && this.selectedSeats[0] === seat.seatNo) {
       this.selectedSeats = [];
+      this.timeOptions = [];
+      this.timeChangePossible = false;
     } else {
       this.selectedSeats = [seat.seatNo];
+      // whether time can be changed depends on which seat is picked, so recheck
+      this.loadTimeOptionsForSeat(seat.seatNo);
     }
   }
 
@@ -303,13 +407,19 @@ export class StudentDetailsComponent {
 
     this.http.put<any>(`${this.api}/api/payments/change-seat`, {
       userId: this.selectedUser.userId,
-      newSeats: this.selectedSeats
+      newSeats: this.selectedSeats,
+      shiftLabel: this.selectedShiftLabel,
+      shiftTime: this.selectedShiftTime
     }).subscribe({
       next: (res) => {
         this.seatChangeLoading = false;
         // update UI instantly, same object reference as in this.users list
         if (this.selectedUser.payment) {
           this.selectedUser.payment.seats = [...this.selectedSeats];
+          this.selectedUser.payment.shift = {
+            label: this.selectedShiftLabel,
+            time: this.selectedShiftTime
+          };
         }
         this.notifiaction.success('Success', 'Seat changed successfully');
         this.showSeatModal = false;
