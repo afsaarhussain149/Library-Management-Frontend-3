@@ -388,6 +388,44 @@
     {{ seatChangeError }}
   </p>
 </div>
+
+<!-- Change Time (only within the student's existing plan duration) -->
+<div class="mt-4" *ngIf="selectedSeats.length">
+  <label class="block text-sm font-medium text-gray-700 mb-2">
+    Shift Time ({{ currentShiftLabel }})
+  </label>
+
+  <div *ngIf="timeOptionsLoading" class="text-center text-sm text-gray-500 py-2">
+    Checking available times...
+  </div>
+
+  <ng-container *ngIf="!timeOptionsLoading">
+    <div class="flex flex-wrap gap-2">
+      <button
+        *ngFor="let opt of timeOptions"
+        type="button"
+        [disabled]="!timeChangePossible || !opt.available"
+        (click)="selectTime(opt)"
+        class="px-3 py-1.5 text-xs rounded-lg border font-medium transition"
+        [ngClass]="{
+          'bg-green-600 text-white border-green-600': selectedShiftTime === opt.time,
+          'bg-gray-50 text-gray-700 border-gray-300 hover:bg-gray-200 cursor-pointer': timeChangePossible && opt.available && selectedShiftTime !== opt.time,
+          'bg-red-50 text-red-300 border-red-100 cursor-not-allowed opacity-60': timeChangePossible && !opt.available,
+          'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed opacity-60': !timeChangePossible && opt.time !== currentShiftTime
+        }"
+      >
+        {{ opt.time }}
+      </button>
+    </div>
+
+    <p class="text-xs text-gray-500 mt-2" *ngIf="!timeChangePossible">
+      This seat has no free alternate time slot right now, so time can't be changed — only seat number can be updated.
+    </p>
+    <p class="text-xs text-gray-500 mt-2" *ngIf="timeChangePossible">
+      Selected time: <span class="font-semibold">{{ selectedShiftTime }}</span>
+    </p>
+  </ng-container>
+</div>
       <p class="text-xs text-gray-400 mt-1">
         Input seat
       </p>
