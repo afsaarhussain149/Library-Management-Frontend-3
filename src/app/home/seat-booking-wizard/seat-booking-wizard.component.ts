@@ -103,8 +103,9 @@ export class SeatBookingWizardComponent implements OnInit {
     clickToClose: true,
     maxLength: 200,
   };
-  calculatePlanDates(months: number) {
-    const startDate = new Date(); // today
+
+  calculatePlanDates(months: number, baseDate?: Date | null) {
+    const startDate = (baseDate && !isNaN(baseDate.getTime())) ? new Date(baseDate) : new Date();
     const endDate = new Date(startDate);
 
     endDate.setMonth(endDate.getMonth() + months);
@@ -124,82 +125,89 @@ export class SeatBookingWizardComponent implements OnInit {
     if (!this.selectedPlanData) { this.notifications.warn('Please select a plan'); return; }
     if (!this.selectedShiftLabel || !this.selectedShiftTime) { this.notifications.warn('Please select a shift'); return; }
     if (!this.selectedSeats || this.selectedSeats.length === 0) { this.notifications.warn('Please select a seat'); return; }
-    let userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || '')
-    console.log(userdataid.userId, "fjfjjffj");
+
+    let userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || '');
+
     let months = 0;
-
     switch (this.selectedPlanData.type) {
-      case 'Monthly':
-        months = 1;
-        break;
-      case 'Quarterly':
-        months = 3;
-        break;
-      case 'Half Yearly':
-        months = 6;
-        break;
-      case 'Annually':
-        months = 12;
-        break;
+      case 'Monthly': months = 1; break;
+      case 'Quarterly': months = 3; break;
+      case 'Half Yearly': months = 6; break;
+      case 'Annually': months = 12; break;
     }
-    console.log(months);
 
-    const { planStartDate, planEndDate } =
-      this.calculatePlanDates(months);
-    console.log(planStartDate, planEndDate);
+    this.http.get<any>(`${this.backendUrl}/user/${userdataid.userId}`).subscribe({
+      next: (res) => {
+        const payments = res?.data || [];
+        let baseDate: Date | null = null;
 
-    // Build payload exactly like backend expects
-    if (this.selectedPlanData.type == 'Monthly') {
-      this.newprice = ((this.selectedPlanData.amount || 0) + 200) * 100
+        if (payments.length) {
+          const latest = payments.reduce((a: any, b: any) =>
+            new Date(a.end_plan_date) > new Date(b.end_plan_date) ? a : b
+          );
+          if (latest?.end_plan_date) {
+            baseDate = new Date(latest.end_plan_date);
+          }
+        }
 
-    } else {
-      this.newprice = ((this.selectedPlanData.amount || 0)) * 100
-
-    }
-    // Backend PaymentDetails bean flat fields expect karta hai (planHours,
-    // planType, planAmount, shiftLabel, shiftTime) — nested plan/shift object
-    // nahi. Isliye yahan flatten karke bhej rahe hain.
-    const payload = {
-      amount: this.newprice, // paise
-      currency: 'INR',
-      userId: userdataid.userId,
-      planHours: this.selectedPlanData.hours,
-      planType: this.selectedPlanData.type,
-      planAmount: this.selectedPlanData.amount,
-      shiftLabel: this.selectedShiftLabel,
-      shiftTime: this.selectedShiftTime,
-      seats: this.selectedSeats,
-      metadata: {
-        fullName: this.sessiondata?.fullName || '',
-        email: this.sessiondata?.email || '',
-        planId: this.selectedPlanData?.planId || '' // optional
+        this.buildPayloadAndPay(months, baseDate);
       },
-      endPlanDate: planEndDate
-    };
-
-    // this.createOrderAndPay(payload);
-    if (this.paymentMode === 'online') {
-      const payloadd = {
-        ...payload,
-        amount: this.newprice, // paise
-        currency: 'INR'
-      };
-      this.createOrderAndPay(payloadd);   // existing function
-      return;
-    }
-
-    // 🔥 If CASH
-    if (this.paymentMode === 'cash') {
-      const cashPayload = {
-        ...payload,
-        amount: this.newprice, // rupees direct for cash
-        paymentMode: "cash"
-      };
-
-      this.cashRequest(cashPayload);
-      return;
-    }
+      error: () => {
+        this.buildPayloadAndPay(months, null);
+      }
+    });
   }
+
+private buildPayloadAndPay(months: number, baseDate: Date | null) {
+  const { planStartDate, planEndDate } = this.calculatePlanDates(months, baseDate);
+  console.log('anchor baseDate:', baseDate, 'planStartDate:', planStartDate, 'planEndDate:', planEndDate);
+
+  if (this.selectedPlanData.type == 'Monthly') {
+    this.newprice = ((this.selectedPlanData.amount || 0) + 200) * 100;
+  } else {
+    this.newprice = ((this.selectedPlanData.amount || 0)) * 100;
+  }
+
+  let userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || '');
+
+  const payload = {
+    amount: this.newprice,
+    currency: 'INR',
+    userId: userdataid.userId,
+    planHours: this.selectedPlanData.hours,
+    planType: this.selectedPlanData.type,
+    planAmount: this.selectedPlanData.amount,
+    shiftLabel: this.selectedShiftLabel,
+    shiftTime: this.selectedShiftTime,
+    seats: this.selectedSeats,
+    metadata: {
+      fullName: this.sessiondata?.fullName || '',
+      email: this.sessiondata?.email || '',
+      planId: this.selectedPlanData?.planId || ''
+    },
+    endPlanDate: planEndDate
+  };
+
+  if (this.paymentMode === 'online') {
+    const payloadd = {
+      ...payload,
+      amount: this.newprice,
+      currency: 'INR'
+    };
+    this.createOrderAndPay(payloadd);
+    return;
+  }
+
+  if (this.paymentMode === 'cash') {
+    const cashPayload = {
+      ...payload,
+      amount: this.newprice,
+      paymentMode: "cash"
+    };
+    this.cashRequest(cashPayload);
+    return;
+  }
+}
   cashRequest(data: any) {
     this.http.post(`${this.backendUrl}/cash-request`, data)
       .subscribe((res: any) => {
@@ -385,12 +393,8 @@ export class SeatBookingWizardComponent implements OnInit {
     sessionStorage.removeItem('wizard_state');
 
     // User session (keep this)
-    // User session (keep this)
     this.sessiondata = JSON.parse(sessionStorage.getItem('userdata') || '{}');
 
-    // 🔁 RENEW PLAN: if the student came here via the header's "Renew Plan"
-    // button, prefill the "User Details" step from their existing profile
-    // instead of making them type everything again.
     const renewProfileRaw = sessionStorage.getItem('renew_user_profile');
     if (renewProfileRaw) {
       const p = JSON.parse(renewProfileRaw);
@@ -444,7 +448,6 @@ export class SeatBookingWizardComponent implements OnInit {
       }
     });
 
-    // If user unchecked the same plan, clear local selected data
     if (!selectedPlan.selected) {
       this.selectedPlanData = null;
       this.totalAmount = 0;
@@ -456,8 +459,6 @@ export class SeatBookingWizardComponent implements OnInit {
       return;
     }
 
-    // If user checked a (new) plan, clear any previous selection state
-    // Reset global selection data so previous plan's option/shift/seats are removed
     this.selectedPlanData = null;
     this.totalAmount = 0;
     this.selectedShiftLabel = null;
@@ -465,7 +466,6 @@ export class SeatBookingWizardComponent implements OnInit {
     this.selectedSeats = [];
     this.isPlanSelected = false;
 
-    // Ensure the newly selected plan's selectedOption is empty (user must pick an option)
     selectedPlan.selectedOption = '';
 
     // Update shifts to ones corresponding to the newly selected hours (will show on step 2)
