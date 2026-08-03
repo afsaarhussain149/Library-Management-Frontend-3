@@ -10,7 +10,7 @@
     Complaint
   </h2>
 
- <div class="overflow-x-auto bg-white rounded-xl shadow">
+  <div class="overflow-x-auto bg-white rounded-xl shadow">
   <table class="min-w-full text-left border-collapse">
     <thead>
       <tr class="border-b bg-gray-100 text-gray-700">
@@ -32,7 +32,22 @@
         <td class="px-4 py-3">{{ i + 1 }}</td>
         <td class="px-4 py-3">{{ comp.userId }}</td>
         <td class="px-4 py-3">{{ comp.issueType }}</td>
-        <td class="px-4 py-3">{{ comp.message }}</td>
+        <td class="px-4 py-3">
+          <span>
+            {{
+              comp.message?.length > 40
+                ? (comp.message | slice:0:40) + '...'
+                : comp.message
+            }}
+          </span>
+
+          <button
+            *ngIf="comp.message?.length > 40"
+            (click)="openMessage(comp.message)"
+            class="ml-2 text-blue-600 hover:underline text-sm font-medium">
+            View More
+          </button>
+        </td>
         <td class="px-4 py-3">
           {{ comp.createdAt | date: 'dd MMM yyyy' }}
         </td>
@@ -62,8 +77,41 @@
       </tr>
     </tbody>
   </table>
+  </div>
 </div>
 
+<!-- Message Modal -->
+<div
+  *ngIf="showMessageModal"
+  class="fixed inset-0 backdrop-blur-sm bg-black/20 flex items-center justify-center z-50 p-4">
 
- 
+  <div class="bg-white rounded-xl shadow-xl w-full max-w-lg">
+
+    <div class="flex justify-between items-center border-b p-4">
+      <h3 class="text-lg font-semibold">
+        Full Message
+      </h3>
+
+      <button
+        (click)="closeMessage()"
+        class="text-gray-500 hover:text-red-600 text-2xl">
+        &times;
+      </button>
+    </div>
+
+    <div class="p-4 max-h-[60vh] overflow-y-auto break-words">
+      {{ selectedMessage }}
+    </div>
+
+    <div class="border-t p-4 flex justify-end">
+      <button
+        (click)="closeMessage()"
+        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+        Close
+      </button>
+    </div>
+
+  </div>
+
 </div>
+

@@ -9,7 +9,12 @@ import { NotificationsService, Options } from 'angular2-notifications';
   styleUrl: './complaint.component.css'
 })
 export class ComplaintComponent implements OnInit{
-    constructor(private http: HttpClient,private notifications:NotificationsService) { }
+
+  selectedMessage: string = '';
+  showMessageModal = false;
+
+  constructor(private http: HttpClient,private notifications:NotificationsService) { }
+
   api: any = 'https://library-management-backend-3-62tq.onrender.com';
   users: any[] = [];
   page = 1;
@@ -28,8 +33,6 @@ export class ComplaintComponent implements OnInit{
       next: (res) => {
         // interceptor complaint_id ko complaintId bana deta hai (Mongo ka _id nahi hai)
         this.complaints = res.data || [];
-        console.log(this.complaints);
-
         this.loading = false;
       },
       error: () => {
@@ -50,18 +53,27 @@ export class ComplaintComponent implements OnInit{
 
 this.http.delete(`${this.api}/api/complaint/complaints/${id}`).subscribe({
     next:(res:any)=>{
-      console.log(res);
       this.notifications.success(res.message);
       // refresh list
       this.loading=false
       this.fetchComplaints()
     },
     error:(err)=>{
-      console.log("Error:",err);
       this.loading=false
       this.notifications.error(err.error?.message || "Approval failed");
     }
   })
 
   }
+
+  openMessage(message: string) {
+    this.selectedMessage = message;
+    this.showMessageModal = true;
+  }
+
+  closeMessage() {
+    this.showMessageModal = false;
+    this.selectedMessage = '';
+  }
+
 }

@@ -87,9 +87,6 @@ updateProfile1() {
       next: (res: any) => {
             this.notificationsService.success(res.message);
 
-        // Backend admin-edit-profile response sirf {success, message} deta
-        // hai, updated admin object nahi — isliye jo values submit kiye the
-        // wahi UI me use kar rahe hain.
         this.adminname = this.editName;
         this.adminphone = this.editPhone;
 
@@ -145,12 +142,9 @@ this.data =sessionStorage.getItem('phone')
   this.homeService.updateProfile(this.adminId, formData)
     .subscribe({
       next: (res: any) => {
-         console.log("jjdjdj");
          
   this.loading = false;
 
-        // Backend admin-edit-profile response sirf {success, message} deta
-        // hai — jo values submit kiye the wahi UI me use kar rahe hain.
         this.adminname = this.editName;
         this.adminphone = this.data;
 
@@ -193,8 +187,7 @@ getUserStatusCount() {
   this.http
     .get<any>(`${this.api}/api/payments/users-status-count`)
     .subscribe(res => {
-      console.log(res);
-      
+
       this.activeCount = res.activeCount;
       this.inactiveCount = res.inactiveCount;
       this.totalUsers = res.total;
@@ -206,8 +199,6 @@ getUserStatusCount() {
     this.http.get<any>(`${this.api}/api/complaint/complaints`).subscribe({
       next: (res) => {
         this.complaints = res.count || 0;
-        console.log(this.complaints);
-
         this.loading = false;
       },
       error: () => {
@@ -220,8 +211,7 @@ fetchpayment(){
 
     this.http.get<any>(`${this.api}/api/payments/pending-cash`)
       .subscribe(res => {
-      console.log(res);
-      
+
         this.loading = false;
       }, () => {
         this.loading = false;

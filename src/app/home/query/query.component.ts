@@ -10,8 +10,12 @@ HttpClient
   styleUrl: './query.component.css'
 })
 export class QueryComponent implements OnInit {
+
   queries: any[]=[];
-constructor(private http:HttpClient,private notifications:NotificationsService){
+  selectedMessage: string = '';
+  showMessageModal = false;
+  
+  constructor(private http:HttpClient,private notifications:NotificationsService){
   
 }
   api: any = 'https://library-management-backend-3-62tq.onrender.com';
@@ -55,4 +59,14 @@ this.http.delete(`${this.api}/api/query/${id}`).subscribe({
     clickToClose: true,
     maxLength: 200
   };
+
+  openMessage(message: string) {
+    this.selectedMessage = message;
+    this.showMessageModal = true;
+  }
+
+  closeMessage() {
+    this.showMessageModal = false;
+    this.selectedMessage = '';
+  }
 }

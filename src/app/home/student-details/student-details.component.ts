@@ -19,9 +19,6 @@ interface Students {
   shiftDate: string;
 }
 
-// Same duration -> time-slot groups used by the student booking wizard.
-// Kept here so admin seat-edit can only offer times within the student's
-// existing plan duration (changing duration/plan itself is not this flow's job).
 const SHIFT_GROUPS: { label: string; times: string[] }[] = [
   { label: '4 Hrs', times: ['8:00 AM - 12:00 PM', '10:00 AM - 2:00 PM', '12:00 PM - 4:00 PM', '2:00 PM - 6:00 PM', '4:00 PM - 8:00 PM', '6:00 PM - 10:00 PM'] },
   { label: '6 Hrs', times: ['8:00 AM - 2:00 PM', '10:00 AM - 4:00 PM', '12:00 PM - 6:00 PM', '2:00 PM - 8:00 PM', '4:00 PM - 10:00 PM'] },
@@ -113,14 +110,9 @@ export class StudentDetailsComponent {
       params = params.set('status', 'inactive');
     }
 
-    // 🔥 Call API (without pagination)
     this.http.get<any>(`${this.api}/api/payments/users-with-payments-all`, { params })
       .subscribe(res => {
 
-        // Backend /api/payments/users-with-payments-all response me sirf
-        // userId, fullName, phoneNumber, email, paymentId, paymentStatus,
-        // paymentIsActive, paymentCreatedAt hi milte hain — planType/Amount
-        // is query me select nahi hote (backend query me add karwana hoga).
         const data = res.data.map((u: any) => ({
           UserID: u.userId,
           Name: u.fullName,
@@ -166,14 +158,12 @@ export class StudentDetailsComponent {
       params = params.set('phone', this.filters.phone);
     }
 
-    // 🔥 Active / Inactive Logic
     if (this.filters.active && !this.filters.inactive) {
       params = params.set('status', 'active');
     }
     else if (!this.filters.active && this.filters.inactive) {
       params = params.set('status', 'inactive');
     }
-    // If both selected OR none selected → don't send status (show all)
 
     this.http
       .get<any>(
@@ -182,12 +172,6 @@ export class StudentDetailsComponent {
       )
       .subscribe(
         res => {
-          // Backend /api/payments/users-with-payments/{page} flat columns deta
-          // hai (paymentId, paymentStatus, paymentIsActive, ...) — template
-          // nested `u.payment.xxx` expect karta hai, isliye yahan map karte hain.
-          // Note: is query me `amount` aur `photo` columns select hi nahi hote,
-          // isliye woh yahan blank/0 hi dikhenge (backend query me add karwa lo
-          // agar Amount/Photo column bhi table me chahiye).
           this.users = (res.data || []).map((u: any) => ({
             ...u,
             payment: u.paymentId ? {
@@ -195,7 +179,6 @@ export class StudentDetailsComponent {
               status: u.paymentStatus,
               isActive: u.paymentIsActive,
               plan: { hours: u.planHours, type: u.planType },
-              // backend "seats" ko comma-separated string me deta hai (e.g. "12,13"), array me convert
               seats: typeof u.seats === 'string' && u.seats.length
                 ? u.seats.split(',').map((s: string) => Number(s.trim()))
                 : [],
@@ -220,8 +203,6 @@ export class StudentDetailsComponent {
   openStatusModal(user: any) {
     this.selectedUser = user;
     this.showStatusModal = true;
-    console.log(user);
-
   }
 
   // -------------------- CHANGE SEAT (Admin) --------------------
@@ -266,13 +247,6 @@ export class StudentDetailsComponent {
     this.showSeatModal = false;
     this.seatChangeError = '';
   }
-
-  // For the given seat number, checks every time slot within the student's current
-  // duration group and marks which ones are actually free (student's own bookings
-  // excluded, so their current slot always shows as available to themselves).
-  // timeChangePossible is true only when at least one OTHER slot besides the
-  // current one is free - that's what enables the time picker in the UI; otherwise
-  // it stays disabled and only the current time can be kept.
   loadTimeOptionsForSeat(seatNo: number) {
     this.timeOptions = [];
     this.timeChangePossible = false;
@@ -436,31 +410,33 @@ export class StudentDetailsComponent {
   }
 
   confirmStatusChange() {
-    console.log('jwjejwjwjwj');
-    this.loading = true
-    const newStatus = !this.selectedUser.payment.isActive;
-    console.log(newStatus);
+      this.loading = true
+      const newStatus = !this.selectedUser.payment.isActive;
 
-    this.http.put(`${this.api}/api/payments/update-status`, {
-      phoneNumber: this.selectedUser.phoneNumber,
-      isActive: newStatus
-    }).subscribe(() => {
+      this.http.put<any>(`${this.api}/api/payments/update-status`, {
+        phoneNumber: this.selectedUser.phoneNumber,
+        isActive: newStatus
+      }).subscribe(() => {
 
-      // Update UI instantly
-      this.selectedUser.payment.isActive = newStatus;
-      if (newStatus) {
-        this.notifiaction.success('Success', 'User activated successfully');
-      } else {
-        this.notifiaction.success('Success', 'User deactivated successfully');
-      } this.loading = false
-      this.showStatusModal = false;
-    });
+        // Update UI instantly
+        this.selectedUser.payment.isActive = newStatus;
+        if (!newStatus) {
+          // deactivating: backend clears seat + shift time + plan duration and expires
+          // the plan, mirror that here so the table/detail view doesn't show stale data
+          this.selectedUser.payment.seats = [];
+          this.selectedUser.payment.shift = { label: null, time: null };
+          if (this.selectedUser.payment.plan) {
+            this.selectedUser.payment.plan.hours = null;
+          }
+          this.notifiaction.success('Success', 'User deactivated successfully — seat, time & duration cleared, plan marked expired');
+        } else {
+          // activating: seat/plan is intentionally NOT restored - student must renew themselves
+          this.notifiaction.success('Success', 'User activated successfully. Student needs to renew their plan to get a seat.');
+        }
+        this.loading = false
+        this.showStatusModal = false;
+      });
   }
-
-  // viewUser(data: any) {
-  //   sessionStorage.setItem("studentDATA", JSON.stringify(data))
-  //   this.router.navigate(['/home/single-student-detail']);
-  // }
 
   viewUser(data: any) {
     this.loading = true;

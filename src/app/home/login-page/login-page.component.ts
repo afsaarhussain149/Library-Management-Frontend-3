@@ -145,7 +145,6 @@ export class LoginPageComponent {
     };
 
     this.loading = true;
-    console.log(adminpayload, "djdjdj");
 
     if (this.email == '8750583123') {
       sessionStorage.setItem("phone", this.email)
@@ -153,8 +152,6 @@ export class LoginPageComponent {
 
         next: (data: any) => {
           this.loading = false;
-
-          console.log("Login Response:", data);
 
           // Store full response
           sessionStorage.setItem('userdata', JSON.stringify(data));
@@ -169,8 +166,6 @@ export class LoginPageComponent {
 
         error: (err: any) => {
           this.loading = false;
-
-          console.error("Login Error:", err);
           this.notificationsService.error('Error', err.error.message);
         },
 
@@ -184,8 +179,6 @@ export class LoginPageComponent {
       this.homeservice.loginuser(payload).subscribe({
         next: (data: any) => {
           this.loading = false;
-          console.log('Login Response:', data);
-
 
           sessionStorage.setItem('userdata', JSON.stringify(data.user));
           this.notificationsService.success('Success', 'Login successful!');
@@ -197,7 +190,6 @@ export class LoginPageComponent {
         },
         error: (err) => {
           this.loading = false;
-          console.error('Login Error:', err);
           if (err.error.paymentStatus == 'not-paid') {
 
             // sessionStorage.setItem('takeuserdetails',JSON.stringify(userdatabaic))
@@ -220,6 +212,8 @@ export class LoginPageComponent {
 
   flipToForgot() { this.route.navigate(['/register']) } // flip 2nd side
   showUnpaidCard() { this.route.navigate(['/unpaiduser']) } // flip 2nd side
+
+  goToHome() { this.route.navigate(['/home']);}
 
 
 }
