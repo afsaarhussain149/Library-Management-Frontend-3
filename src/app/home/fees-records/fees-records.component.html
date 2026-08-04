@@ -53,7 +53,7 @@
                 'bg-green-100 text-green-700': u.payment?.status === 'paid',
                 'bg-yellow-100 text-yellow-700': u.payment?.status === 'created',
                 'bg-blue-100 text-blue-700': u.payment?.status === 'pending',
-                'bg-red-100 text-red-700': u.payment?.status === 'failed'
+                'bg-red-100 text-red-700': u.payment?.status === 'failed' || u.payment?.status === 'rejected'
               }"
             >
               {{ u.payment?.status || 'N/A' }}
@@ -65,13 +65,18 @@
           </td>
 
           <td class="px-4 py-3">
-            <button class="px-4 py-2 bg-blue-200 rounded disabled:opacity-50"
-            
-              title="Approve Payment"
-              (click)="viewUser(u)"
-            >
-Approve payment          </button>
-          </td>
+                      <button class="px-4 py-2 bg-blue-200 rounded disabled:opacity-50"
+                      
+                        title="Approve Payment"
+                        (click)="viewUser(u)"
+                      >
+          Approve payment          </button>
+                      <button class="px-4 py-2 bg-red-200 rounded disabled:opacity-50 ml-2"
+                        title="Reject Payment"
+                        (click)="rejectUser(u)"
+                      >
+          Reject payment          </button>
+        </td>
         </tr>
        
       </tbody>

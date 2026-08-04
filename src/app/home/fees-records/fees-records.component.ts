@@ -40,6 +40,24 @@ viewUser(data:any){
     }
   })
 }
+
+rejectUser(data:any){
+  let userid = data.userId;
+  this.loading = true;
+
+  this.http.patch<any>(`${this.api}/api/payments/reject/${userid}`,{})
+  .subscribe({
+    next:(res)=>{
+      this.notifications.success(res.message);
+      this.fetchpayment(1);
+      this.loading=false
+    },
+    error:(err)=>{
+      this.loading=false
+      this.notifications.error(err.error?.message || "Rejection failed");
+    }
+  })
+}
 notificationOptions: Options = {
     position: ['top', 'right'],   // 👈 always top-right of screen
     timeOut: 4000,

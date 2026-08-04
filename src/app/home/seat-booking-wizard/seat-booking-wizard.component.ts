@@ -253,10 +253,10 @@ private buildPayloadAndPay(months: number, baseDate: Date | null) {
             }
           });
         } else {
-          this.notifications.error("Failed to request cash payment.");
+          this.notifications.error(res.message || "Failed to request cash payment.");
         }
       }, err => {
-        this.notifications.error("Server error");
+        this.notifications.error(err?.error?.message || "Server error");
       });
   }
 
