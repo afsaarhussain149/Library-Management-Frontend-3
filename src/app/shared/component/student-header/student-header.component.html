@@ -29,18 +29,22 @@
       <a href="/home/user" class="text-black hover:text-gray-600 text-lg">Dashboard</a>
       <!-- <a href="/home/user" class="text-black hover:text-gray-600 text-lg">Pay fee</a> -->
       <a (click)="openComplaint.emit()" class="text-black hover:text-gray-600 text-lg">Complaint</a>
-        <button
+      <button
           *ngIf="isLoggedIn && hasPlan"
           (click)="renewPlan()"
-          [disabled]="!isPlanExpired"
-          [title]="isPlanExpired ? 'Your plan has expired - click to renew' : ('Plan active till ' + planEndDate)"
+          [disabled]="!canRenew"
+          [title]="isPlanExpired
+            ? 'Your plan has expired - click to renew'
+            : canRenew
+              ? ('Plan expires in ' + daysUntilExpiry + ' day(s) - renew now to keep your seat')
+              : ('Plan active till ' + planEndDate)"
           class="px-4 py-1.5 rounded-lg text-sm font-medium transition"
-          [ngClass]="isPlanExpired
+          [ngClass]="canRenew
             ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
             : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
         >
           Renew Plan
-        </button>
+      </button>
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
         fill="#22c55e" class="w-6 h-6 animate-pulse">
         <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" />
@@ -76,9 +80,9 @@
       <button
         *ngIf="isLoggedIn && hasPlan"
         (click)="renewPlan()"
-        [disabled]="!isPlanExpired"
+        [disabled]="!canRenew"
         class="mx-auto px-4 py-1.5 rounded-lg text-sm font-medium transition"
-        [ngClass]="isPlanExpired
+        [ngClass]="canRenew
           ? 'bg-green-600 text-white hover:bg-green-700 cursor-pointer'
           : 'bg-gray-200 text-gray-400 cursor-not-allowed'"
       >

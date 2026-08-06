@@ -43,6 +43,8 @@ export class SeatBookingWizardComponent implements OnInit {
   aadhar: any;
   gender: any;
   newprice: any;
+  readonly RENEWAL_GRACE_DAYS = 5;
+
   allowOnlyNumbers(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
     // Allow only numbers (0-9)
@@ -141,28 +143,38 @@ export class SeatBookingWizardComponent implements OnInit {
         const payments = res?.data || [];
         let baseDate: Date | null = null;
 
+        const isFirstTimeRegistration = !payments.some((p: any) => p.status === 'paid');
+
         if (payments.length) {
           const latest = payments.reduce((a: any, b: any) =>
             new Date(a.end_plan_date) > new Date(b.end_plan_date) ? a : b
           );
           if (latest?.end_plan_date) {
-            baseDate = new Date(latest.end_plan_date);
+            const latestEnd = new Date(latest.end_plan_date);
+            latestEnd.setHours(0, 0, 0, 0);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            const msPerDay = 24 * 60 * 60 * 1000;
+            const daysLate = Math.round((today.getTime() - latestEnd.getTime()) / msPerDay);
+            baseDate = (daysLate <= this.RENEWAL_GRACE_DAYS) ? latestEnd : null;;
           }
         }
 
-        this.buildPayloadAndPay(months, baseDate);
+        this.buildPayloadAndPay(months, baseDate, isFirstTimeRegistration);
       },
       error: () => {
-        this.buildPayloadAndPay(months, null);
+        this.buildPayloadAndPay(months, null, true);
       }
     });
   }
 
-private buildPayloadAndPay(months: number, baseDate: Date | null) {
+private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeRegistration: boolean) {
   const { planStartDate, planEndDate } = this.calculatePlanDates(months, baseDate);
-  console.log('anchor baseDate:', baseDate, 'planStartDate:', planStartDate, 'planEndDate:', planEndDate);
 
-  if (this.selectedPlanData.type == 'Monthly') {
+  const applyRegistrationFee = this.selectedPlanData.type == 'Monthly' && isFirstTimeRegistration;
+
+  if (applyRegistrationFee) {
     this.newprice = ((this.selectedPlanData.amount || 0) + 200) * 100;
   } else {
     this.newprice = ((this.selectedPlanData.amount || 0)) * 100;

@@ -61,6 +61,9 @@ export class StudentHeaderComponent implements OnInit {
   isNavbarHidden = false;
   isLoggedIn = false;
   private lastScrollTop = 0;
+  readonly RENEWAL_WINDOW_DAYS = 5;
+  daysUntilExpiry: number | null = null;
+  canRenew = false;
 
   api: string = 'https://library-management-backend-3-62tq.onrender.com';
 
@@ -129,7 +132,11 @@ export class StudentHeaderComponent implements OnInit {
         const end = new Date(latestPaid.endPlanDate);
         end.setHours(0, 0, 0, 0);
 
-        this.isPlanExpired = today >= end;
+        const msPerDay = 24 * 60 * 60 * 1000;
+        this.daysUntilExpiry = Math.round((end.getTime() - today.getTime()) / msPerDay);
+
+        this.isPlanExpired = this.daysUntilExpiry <= 0;
+        this.canRenew = this.daysUntilExpiry <= this.RENEWAL_WINDOW_DAYS;
       },
       error: () => {
         this.hasPlan = false;
