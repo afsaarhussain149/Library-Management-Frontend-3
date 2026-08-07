@@ -44,6 +44,8 @@ export class SeatBookingWizardComponent implements OnInit {
   gender: any;
   newprice: any;
   readonly RENEWAL_GRACE_DAYS = 5;
+  readonly RAZORPAY_FEE_RATE = 0.0236;   // 2% + 18% GST
+  isFirstTimeRegistration: boolean | null = null;
 
   allowOnlyNumbers(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
@@ -73,6 +75,24 @@ export class SeatBookingWizardComponent implements OnInit {
       ((originalPrice - opt.price) / originalPrice) * 100;
 
     return Math.round(discount * 100) / 100; // 2 decimal
+  }
+
+  get registrationFeeApplicable(): boolean {
+    return this.selectedPlanData?.type === 'Monthly' && this.isFirstTimeRegistration === true;
+  }
+
+  get baseTotal(): number {
+    const planAmount = this.selectedPlanData?.amount || 0;
+    return planAmount + (this.registrationFeeApplicable ? 200 : 0);
+  }
+
+  get convenienceFee(): number {
+    if (this.paymentMode !== 'online') return 0;
+    return Math.round(this.baseTotal * this.RAZORPAY_FEE_RATE);
+  }
+
+  get grandTotal(): number {
+    return this.baseTotal + this.convenienceFee;
   }
 
   totalAmount = 0;
@@ -174,11 +194,8 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
 
   const applyRegistrationFee = this.selectedPlanData.type == 'Monthly' && isFirstTimeRegistration;
 
-  if (applyRegistrationFee) {
-    this.newprice = ((this.selectedPlanData.amount || 0) + 200) * 100;
-  } else {
-    this.newprice = ((this.selectedPlanData.amount || 0)) * 100;
-  }
+  this.isFirstTimeRegistration = isFirstTimeRegistration;   
+  this.newprice = this.grandTotal * 100;                 
 
   let userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || '');
 
@@ -393,12 +410,6 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
   ) { }
 
   ngOnInit(): void {
-    // this.sessiondata = JSON.parse(sessionStorage.getItem('userdata') || '{}');
-    // If you want previously saved wizard state, you can load it here:
-    // const saved = sessionStorage.getItem('wizard_state');
-    // if (saved) {
-    //   try { Object.assign(this, JSON.parse(saved)); } catch { /* ignore parse errors */ }
-    // }
     sessionStorage.removeItem('saved_plan');
     sessionStorage.removeItem('saved_shift');
     sessionStorage.removeItem('saved_seat');
@@ -406,6 +417,8 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
 
     // User session (keep this)
     this.sessiondata = JSON.parse(sessionStorage.getItem('userdata') || '{}');
+
+    this.loadFirstTimeRegistrationStatus();
 
     const renewProfileRaw = sessionStorage.getItem('renew_user_profile');
     if (renewProfileRaw) {
@@ -444,7 +457,6 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
     this.shifts = [...this.allShifts];
     this.shifts.forEach(s => s.open = false);
 
-    console.log("Wizard reset successfully on page load!");
   }
 
   // -----------------------
@@ -958,4 +970,20 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
   isLastStep(): boolean {
     return this.currentStepIndex === this.steps.length - 1;
   }
+
+  private loadFirstTimeRegistrationStatus() {
+    const userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || 'null');
+    if (!userdataid?.userId) return;
+
+    this.http.get<any>(`${this.backendUrl}/user/${userdataid.userId}`).subscribe({
+      next: (res) => {
+        const payments = res?.data || [];
+        this.isFirstTimeRegistration = !payments.some((p: any) => p.status === 'paid');
+      },
+      error: () => {
+        this.isFirstTimeRegistration = true;
+      }
+    });
+  }
+
 }

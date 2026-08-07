@@ -506,9 +506,15 @@
       <span class="text-gray-300">Plan Price:</span>
       <span class="font-semibold">₹{{ selectedPlanData?.amount }}</span>
     </div>
-    <div class="flex justify-between" *ngIf="selectedPlanData.type=='Monthly'">
-      <span class="text-gray-300">Registration Fee:</span>
+
+    <div class="flex justify-between" *ngIf="registrationFeeApplicable">
+      <span class="text-gray-300">Registration Fee <span class="text-xs text-gray-500">(first-time only)</span>:</span>
       <span class="font-semibold">₹ 200</span>
+    </div>
+
+    <div class="flex justify-between" *ngIf="paymentMode === 'online'">
+      <span class="text-gray-300">Convenience Fee <span class="text-xs text-gray-500">(online payment gateway)</span>:</span>
+      <span class="font-semibold">₹ {{ convenienceFee }}</span>
     </div>
 
     <!-- Shift -->
@@ -530,8 +536,7 @@
 
     <div class="border-t border-gray-600 mt-3 pt-3 flex justify-between text-lg">
       <span>Total Amount:</span>
-      <span class="font-bold text-green-400 text-xl" *ngIf="selectedPlanData.type != 'Monthly'">₹{{ selectedPlanData?.amount }}</span>
-      <span class="font-bold text-green-400 text-xl" *ngIf="selectedPlanData.type=='Monthly'">₹{{ selectedPlanData?.amount+200 }}</span>
+      <span class="font-bold text-green-400 text-xl">₹{{ grandTotal }}</span>
     </div>
 
   </div>
