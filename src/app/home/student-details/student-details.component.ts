@@ -55,17 +55,33 @@ export class StudentDetailsComponent {
   ngOnInit() {
     this.loadPage(1);
   }
+
   filters = {
     userId: null,
     fullName: '',
     phone: '',
     active: false,
-    inactive: false
+    inactive: false,
+    unpaid: false        
   };
 
   applyFilter() {
     this.page = 1; // reset pagination
     this.loadPage(this.page);
+  }
+
+  onFilterCheckboxChange(changed: 'active' | 'inactive' | 'unpaid') {
+    if (changed === 'active' && this.filters.active) {
+      this.filters.inactive = false;
+      this.filters.unpaid = false;
+    } else if (changed === 'inactive' && this.filters.inactive) {
+      this.filters.active = false;
+      this.filters.unpaid = false;
+    } else if (changed === 'unpaid' && this.filters.unpaid) {
+      this.filters.active = false;
+      this.filters.inactive = false;
+    }
+    this.applyFilter();
   }
 
   formatToMMDDYYYY(dateStr: string): string {
@@ -75,15 +91,17 @@ export class StudentDetailsComponent {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
 
-    return `${year}-${month}-${day}`; // MUST be yyyy-MM-dd
+    return `${year}-${month}-${day}`;
   }
+
   clearFilter() {
     this.filters = {
       userId: null,
       fullName: '',
       phone: '',
       active: false,
-      inactive: false
+      inactive: false,
+      unpaid: false    
     };
     this.applyFilter();
   }
@@ -108,6 +126,9 @@ export class StudentDetailsComponent {
     }
     else if (!this.filters.active && this.filters.inactive) {
       params = params.set('status', 'inactive');
+    }
+    else if (this.filters.unpaid) {
+      params = params.set('status', 'unpaid');
     }
 
     this.http.get<any>(`${this.api}/api/payments/users-with-payments-all`, { params })
@@ -421,8 +442,6 @@ export class StudentDetailsComponent {
         // Update UI instantly
         this.selectedUser.payment.isActive = newStatus;
         if (!newStatus) {
-          // deactivating: backend clears seat + shift time + plan duration and expires
-          // the plan, mirror that here so the table/detail view doesn't show stale data
           this.selectedUser.payment.seats = [];
           this.selectedUser.payment.shift = { label: null, time: null };
           if (this.selectedUser.payment.plan) {
@@ -430,7 +449,6 @@ export class StudentDetailsComponent {
           }
           this.notifiaction.success('Success', 'User deactivated successfully — seat, time & duration cleared, plan marked expired');
         } else {
-          // activating: seat/plan is intentionally NOT restored - student must renew themselves
           this.notifiaction.success('Success', 'User activated successfully. Student needs to renew their plan to get a seat.');
         }
         this.loading = false

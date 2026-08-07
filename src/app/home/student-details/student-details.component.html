@@ -50,6 +50,11 @@
       Inactive
     </label>
 
+    <label class="flex items-center gap-2">
+      <input type="checkbox" [(ngModel)]="filters.unpaid" (change)="onFilterCheckboxChange('unpaid')">
+      Unpaid
+    </label>
+
   </div>
 
   <!-- Buttons -->

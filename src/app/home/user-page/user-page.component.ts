@@ -52,12 +52,17 @@ export class UserPageComponent implements OnInit, OnDestroy {
         },
         jsPDF: {
           unit: 'mm',
-          format: [200, 200],
+          format: [500, 500],
           orientation: 'landscape'
         }
       })
       .from(element)
-      .save();
+      .save()
+      .then(() => {
+      })
+      .catch(() => {
+        this.notifications.error('Error', 'Failed to download ID card. Please try again.');
+      });
   }
   notificationOptions: Options = {
     position: ['top', 'right'],
@@ -201,22 +206,17 @@ export class UserPageComponent implements OnInit, OnDestroy {
   constructor(private Rout: Router, private home: homeService, private notifications: NotificationsService, private http: HttpClient) { }
   ngOnInit(): void {
     this.userdata = JSON.parse(sessionStorage.getItem('userdata') || '')
-    console.log(this.userdata);
     this.home.showseat(this.userdata.userId).subscribe((data: any) => {
-      console.log(data);
       this.paymentdata = data.data
-      console.log(this.paymentdata);
 
       const rawSeats = data.data?.[0]?.seats;
       const seatList = typeof rawSeats === 'string' && rawSeats.length
         ? rawSeats.split(',').map((s: string) => Number(s.trim()))
         : [];
       this.seat = seatList[0];
-      console.log(this.seat);
 
     })
     this.age = this.calculateAge(this.userdata.dob);
-    console.log('Age:', this.age);
   }
   seatcount: any
   calculateAge(dobString: string): number {
@@ -241,8 +241,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
       "issueType": this.issue
     }
     this.loading = true;
-
-    console.log(payload);
 
     this.home.complaint(payload).subscribe({
       next: (data: any) => {
