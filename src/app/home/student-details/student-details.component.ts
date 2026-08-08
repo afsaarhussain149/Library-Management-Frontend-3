@@ -62,7 +62,7 @@ export class StudentDetailsComponent {
     phone: '',
     active: false,
     inactive: false,
-    unpaid: false        
+    unpaid: false
   };
 
   applyFilter() {
@@ -101,7 +101,7 @@ export class StudentDetailsComponent {
       phone: '',
       active: false,
       inactive: false,
-      unpaid: false    
+      unpaid: false
     };
     this.applyFilter();
   }
@@ -121,14 +121,14 @@ export class StudentDetailsComponent {
       params = params.set('phone', this.filters.phone);
     }
 
-    if (this.filters.active && !this.filters.inactive) {
+    if (this.filters.unpaid) {
+      params = params.set('status', 'unpaid');
+    }
+    else if (this.filters.active && !this.filters.inactive) {
       params = params.set('status', 'active');
     }
     else if (!this.filters.active && this.filters.inactive) {
       params = params.set('status', 'inactive');
-    }
-    else if (this.filters.unpaid) {
-      params = params.set('status', 'unpaid');
     }
 
     this.http.get<any>(`${this.api}/api/payments/users-with-payments-all`, { params })
@@ -179,7 +179,10 @@ export class StudentDetailsComponent {
       params = params.set('phone', this.filters.phone);
     }
 
-    if (this.filters.active && !this.filters.inactive) {
+    if (this.filters.unpaid) {
+      params = params.set('status', 'unpaid');
+    }
+    else if (this.filters.active && !this.filters.inactive) {
       params = params.set('status', 'active');
     }
     else if (!this.filters.active && this.filters.inactive) {
@@ -431,29 +434,29 @@ export class StudentDetailsComponent {
   }
 
   confirmStatusChange() {
-      this.loading = true
-      const newStatus = !this.selectedUser.payment.isActive;
+    this.loading = true
+    const newStatus = !this.selectedUser.payment.isActive;
 
-      this.http.put<any>(`${this.api}/api/payments/update-status`, {
-        phoneNumber: this.selectedUser.phoneNumber,
-        isActive: newStatus
-      }).subscribe(() => {
+    this.http.put<any>(`${this.api}/api/payments/update-status`, {
+      phoneNumber: this.selectedUser.phoneNumber,
+      isActive: newStatus
+    }).subscribe(() => {
 
-        // Update UI instantly
-        this.selectedUser.payment.isActive = newStatus;
-        if (!newStatus) {
-          this.selectedUser.payment.seats = [];
-          this.selectedUser.payment.shift = { label: null, time: null };
-          if (this.selectedUser.payment.plan) {
-            this.selectedUser.payment.plan.hours = null;
-          }
-          this.notifiaction.success('Success', 'User deactivated successfully — seat, time & duration cleared, plan marked expired');
-        } else {
-          this.notifiaction.success('Success', 'User activated successfully. Student needs to renew their plan to get a seat.');
+      // Update UI instantly
+      this.selectedUser.payment.isActive = newStatus;
+      if (!newStatus) {
+        this.selectedUser.payment.seats = [];
+        this.selectedUser.payment.shift = { label: null, time: null };
+        if (this.selectedUser.payment.plan) {
+          this.selectedUser.payment.plan.hours = null;
         }
-        this.loading = false
-        this.showStatusModal = false;
-      });
+        this.notifiaction.success('Success', 'User deactivated successfully — seat, time & duration cleared, plan marked expired');
+      } else {
+        this.notifiaction.success('Success', 'User activated successfully. Student needs to renew their plan to get a seat.');
+      }
+      this.loading = false
+      this.showStatusModal = false;
+    });
   }
 
   viewUser(data: any) {

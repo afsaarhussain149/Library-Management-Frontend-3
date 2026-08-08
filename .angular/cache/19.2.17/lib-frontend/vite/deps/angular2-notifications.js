@@ -1,4 +1,8 @@
 import {
+  DomSanitizer
+} from "./chunk-AHZXY52I.js";
+import "./chunk-YT36VPMT.js";
+import {
   animate,
   sequence,
   state,
@@ -6,10 +10,6 @@ import {
   transition,
   trigger
 } from "./chunk-TZLKYN5K.js";
-import {
-  DomSanitizer
-} from "./chunk-AHZXY52I.js";
-import "./chunk-YT36VPMT.js";
 import "./chunk-GUVN4Q56.js";
 import {
   CommonModule,
@@ -67,8 +67,8 @@ import {
   ɵɵtemplate,
   ɵɵtemplateRefExtractor
 } from "./chunk-LLRKTISV.js";
-import "./chunk-PEBH6BBU.js";
 import "./chunk-WPM5VTLQ.js";
+import "./chunk-PEBH6BBU.js";
 import {
   Subject
 } from "./chunk-4S3KYZTJ.js";
