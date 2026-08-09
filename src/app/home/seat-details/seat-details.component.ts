@@ -103,8 +103,8 @@ export class SeatDetailsComponent implements OnInit {
     }
 
     const message =
-      `Dear ${row.student_name}, this is a reminder from Fouji Book Garden Library. ` +
-      `Your membership plan is set to expire on ${this.formatDate(row.expire_date)}. ` +
+      `Dear ${row.studentName}, this is a reminder from Fouji Book Garden Library. ` +
+      `Your membership plan is set to expire on ${this.formatDate(row.expireDate)}. ` +
       `Kindly renew your payment at the earliest to avoid any interruption in your ` +
       `library access. Thank you for being a valued member.`;
 
@@ -142,9 +142,9 @@ export class SeatDetailsComponent implements OnInit {
     }
 
     const message =
-      `Dear *${row.student_name}*,\n\n` +
+      `Dear *${row.studentName}*,\n\n` +
       `This is a friendly reminder from *Fouji Book Garden Library*.\n\n` +
-      `Your membership plan is set to expire on *${this.formatDate(row.expire_date)}*. ` +
+      `Your membership plan is set to expire on *${this.formatDate(row.expireDate)}*. ` +
       `Kindly renew your payment at the earliest to avoid any interruption in your seat and library access.\n\n` +
       `Thank you for being a valued member.\n\n` +
       `Regards,\n*Fouji Book Garden Library*`;
