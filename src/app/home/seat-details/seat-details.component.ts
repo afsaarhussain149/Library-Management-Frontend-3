@@ -87,4 +87,39 @@ export class SeatDetailsComponent implements OnInit {
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-GB'); // dd/mm/yyyy
   }
+
+  // Opens the phone's native SMS app, pre-addressed to this student's
+  // number, with a friendly reminder message already typed into the
+  // body - the admin just has to hit Send.
+  openSms(row: any) {
+    if (!row?.phone) {
+      this.notifications.error('Error', 'No phone number found for this student');
+      return;
+    }
+
+    const message =
+      `Fouji Book Garden Library: Namaste ${row.student_name}, ` +
+      `aapka library plan ${this.formatDate(row.expire_date)} ko expire ho raha hai. ` +
+      `Kripya jaldi apni fee jama karayein. Dhanyavaad.`;
+
+    const encodedMessage = encodeURIComponent(message);
+
+    // The sms: URI's separator before "body=" differs by platform -
+    // iOS wants "&", Android/desktop want "?". Using the wrong one
+    // silently drops the pre-filled text on some devices.
+    const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    const separator = isIos ? '&' : '?';
+
+    const smsUrl = `sms:${row.phone}${separator}body=${encodedMessage}`;
+    window.open(smsUrl, '_self');
+  }
 }
+
+
+
+
+
+
+
+
+
