@@ -21,6 +21,9 @@ import { QueryComponent } from './query/query.component';
 import { ComplaintComponent } from './complaint/complaint.component';
 import { StudentDetailsComponent } from './student-details/student-details.component';
 import { SingleStudentDetailComponent } from './single-student-detail/single-student-detail.component';
+import { SeatDetailsComponent } from './seat-details/seat-details.component';
+import { FeeRecordsComponent } from './fee-records/fee-records.component';
+
 
 
 const routes: Routes = [
@@ -35,7 +38,9 @@ const routes: Routes = [
   { path: 'query', component: QueryComponent },
   { path: 'complaint', component: ComplaintComponent },
   { path: 'students-details', component: StudentDetailsComponent },
-  { path: 'single-student-detail', component: SingleStudentDetailComponent }
+  { path: 'single-student-detail', component: SingleStudentDetailComponent },
+  { path: 'seat-details', component: SeatDetailsComponent },
+  { path: 'fee-records', component: FeeRecordsComponent },
 ];
 
 
@@ -55,6 +60,7 @@ const routes: Routes = [
     ComplaintComponent,
     StudentDetailsComponent,
     SingleStudentDetailComponent,
+    FeeRecordsComponent,
   ],
   imports: [
     CommonModule,

@@ -11,19 +11,23 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { RegisterComponent } from './register/register.component';
 import { UnpaidUserComponent } from './unpaid-user/unpaid-user.component';
 import { camelCaseInterceptor } from './shared/interceptors/camel-case.interceptor';
+import { SeatDetailsComponent } from './home/seat-details/seat-details.component';
+import { ComponentsModule } from "./shared/component";
+
 
 @NgModule({
   declarations: [
     AppComponent,
     RegisterComponent,
-    UnpaidUserComponent
+    UnpaidUserComponent,
+    SeatDetailsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule, FormsModule,
     HttpClientModule, BrowserAnimationsModule,
-    SimpleNotificationsModule.forRoot()
-
+    SimpleNotificationsModule.forRoot(),
+    ComponentsModule
   ],
   providers: [provideHttpClient(withInterceptors([camelCaseInterceptor]))],
   bootstrap: [AppComponent]
