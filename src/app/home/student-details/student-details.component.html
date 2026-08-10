@@ -158,7 +158,10 @@
               [ngClass]="{
                 'bg-green-100 text-green-700': u.payment?.status === 'paid',
                 'bg-yellow-100 text-yellow-700': u.payment?.status === 'created',
-                'bg-red-100 text-red-700': u.payment?.status === 'failed'
+                'bg-red-100 text-red-700': u.payment?.status === 'failed',
+                'bg-orange-300 text-orange-900': u.payment?.status === 'rejected',
+                'bg-red-100 text-red-800': u.payment?.status === 'expired',
+                'bg-gray-100 text-gray-800': u.payment?.status === null,
               }"
             >
               {{ u.payment?.status || 'N/A' }}
