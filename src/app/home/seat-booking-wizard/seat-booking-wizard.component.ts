@@ -58,7 +58,7 @@ export class SeatBookingWizardComponent implements OnInit {
   // PLAN DATA
   // -----------------------
   plans = [
-    { hours: 4, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 500, months: 1 }, { name: 'Quarterly', price: 1440, months: 3 }, { name: 'Half Yearly', price: 2700, months: 6 }, { name: 'Annually', price: 4800, months: 12 }] },
+    { hours: 4, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 1, months: 1 }, { name: 'Quarterly', price: 1440, months: 3 }, { name: 'Half Yearly', price: 2700, months: 6 }, { name: 'Annually', price: 4800, months: 12 }] },
     { hours: 6, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 650, months: 1 }, { name: 'Quarterly', price: 1860, months: 3 }, { name: 'Half Yearly', price: 3420, months: 6 }, { name: 'Annually', price: 6600, months: 12 }] },
     { hours: 8, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 800, months: 1 }, { name: 'Quarterly', price: 2340, months: 3 }, { name: 'Half Yearly', price: 4500, months: 6 }, { name: 'Annually', price: 8400, months: 12 }] },
     { hours: 10, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 1000, months: 1 }, { name: 'Quarterly', price: 2880, months: 3 }, { name: 'Half Yearly', price: 5640, months: 6 }, { name: 'Annually', price: 10800, months: 12 }] },
@@ -83,7 +83,7 @@ export class SeatBookingWizardComponent implements OnInit {
 
   get baseTotal(): number {
     const planAmount = this.selectedPlanData?.amount || 0;
-    return planAmount + (this.registrationFeeApplicable ? 200 : 0);
+    return planAmount + (this.registrationFeeApplicable ? 0 : 0);
   }
 
   get convenienceFee(): number {
@@ -123,7 +123,7 @@ export class SeatBookingWizardComponent implements OnInit {
     showProgressBar: true,
     pauseOnHover: true,
     clickToClose: true,
-    maxLength: 200,
+    maxLength: 0,
   };
 
   calculatePlanDates(months: number, baseDate?: Date | null) {
