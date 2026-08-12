@@ -30,8 +30,22 @@ export class LoginPageComponent {
   phoneno: any
 
   showPassword = false;
-  showResetPassword = false;
-  showConfirmPassword = false;
+  showForgot = false;
+
+  // ---------- FORGOT PASSWORD ----------
+    forgotEmail: string = '';
+    otp: string = '';
+    newPassword: string = '';
+    confirmNewPassword: string = '';
+
+    forgotStep: number = 1;
+
+    showNewPassword = false;
+    showConfirmNewPassword = false;
+
+    otpVerified = false;
+  // showResetPassword = false;
+  // showConfirmPassword = false;
 
   onPhoneInput(event: any) {
     event.target.value = event.target.value.replace(/[^0-9]/g, '').slice(0, 10);
@@ -88,46 +102,240 @@ export class LoginPageComponent {
   }
 
   flipToLogin() {
-    this.email = ''
-    this.password = ''
+
+    this.email = '';
+    this.password = '';
+
+    this.forgotEmail = '';
+    this.otp = '';
+    this.newPassword = '';
+    this.confirmNewPassword = '';
+
+    this.forgotStep = 1;
+    this.otpVerified = false;
+
     this.isFlipped = false;
     this.showForgot = false;
   }
-  resetPhone: any;
-  resetPassword: any;
+
   api: any = 'https://library-management-backend-3-62tq.onrender.com';
 
-  resetPasswordApi() {
-    if (!this.resetPhone || !this.resetPassword || !this.confirmPassword) {
-      this.notificationsService.warn("All fields required");
+  sendForgotOtp() {
+
+    if (!this.forgotEmail || !this.forgotEmail.trim()) {
+      this.notificationsService.error(
+        'Error',
+        'Please enter your email address'
+      );
       return;
     }
 
-    if (this.resetPassword !== this.confirmPassword) {
-      this.notificationsService.error("Passwords do not match");
-      return;
-    }
+    const email = this.forgotEmail.trim().toLowerCase();
 
+    this.loading = true;
 
-    this.loading = true
-    this.http.post(`${this.api}/api/auth/reset-password`, {
-      phoneNumber: this.resetPhone,
-      newPassword: this.resetPassword
-    }).subscribe(res => {
-      this.notificationsService.success("Password updated successfully");
-      this.resetPhone = "";
-      this.resetPassword = "";
-      this.confirmPassword = "";
-      this.flipToLogin();
+    this.homeservice.forgotPassword({
+      email: email
+    }).subscribe({
 
-      this.loading = false
-    }, err => {
-      this.loading = false
+      next: (res: any) => {
 
-      this.notificationsService.error(err.error?.msg || "Something went wrong");
+        this.loading = false;
+
+        if (res.success) {
+
+          this.forgotEmail = email;
+
+          this.forgotStep = 2;
+
+          this.notificationsService.success(
+            'Success',
+            'OTP has been sent to your email'
+          );
+
+        } else {
+
+          this.notificationsService.error(
+            'Error',
+            res.message || 'Unable to send OTP'
+          );
+        }
+      },
+
+      error: (err: any) => {
+
+        this.loading = false;
+
+        this.notificationsService.error(
+          'Error',
+          err.error?.message || 'Unable to send OTP'
+        );
+      }
     });
   }
 
+  verifyForgotOtp() {
+
+    if (!this.otp || !this.otp.trim()) {
+
+      this.notificationsService.error(
+        'Error',
+        'Please enter OTP'
+      );
+
+      return;
+    }
+
+    if (!/^\d{6}$/.test(this.otp.trim())) {
+
+      this.notificationsService.error(
+        'Error',
+        'OTP must be 6 digits'
+      );
+
+      return;
+    }
+
+    this.loading = true;
+
+    this.homeservice.verifyOtp({
+      email: this.forgotEmail,
+      otp: this.otp.trim()
+    }).subscribe({
+
+      next: (res: any) => {
+
+        this.loading = false;
+
+        if (res.success) {
+
+          this.otpVerified = true;
+
+          this.forgotStep = 3;
+
+          this.notificationsService.success(
+            'Success',
+            'OTP verified successfully'
+          );
+
+        } else {
+
+          this.notificationsService.error(
+            'Error',
+            res.message || 'Invalid OTP'
+          );
+        }
+      },
+
+      error: (err: any) => {
+
+        this.loading = false;
+
+        this.notificationsService.error(
+          'Error',
+          err.error?.message || 'Invalid OTP'
+        );
+      }
+    });
+  }
+
+  changeForgotPassword() {
+
+    if (!this.otpVerified) {
+
+      this.notificationsService.error(
+        'Error',
+        'Please verify OTP first'
+      );
+
+      return;
+    }
+
+    if (!this.newPassword || !this.confirmNewPassword) {
+
+      this.notificationsService.warn(
+        'Warning',
+        'Please enter both password fields'
+      );
+
+      return;
+    }
+
+    if (this.newPassword.length < 6) {
+
+      this.notificationsService.warn(
+        'Warning',
+        'Password must be at least 6 characters'
+      );
+
+      return;
+    }
+
+    if (this.newPassword !== this.confirmNewPassword) {
+
+      this.notificationsService.error(
+        'Error',
+        'Passwords do not match'
+      );
+
+      return;
+    }
+
+    this.loading = true;
+
+    this.homeservice.resetPassword({
+
+      email: this.forgotEmail,
+
+      newPassword: this.newPassword
+
+    }).subscribe({
+
+      next: (res: any) => {
+
+        this.loading = false;
+
+        if (res.success) {
+
+          this.notificationsService.success(
+            'Success',
+            'Password reset successfully'
+          );
+
+          this.flipToLogin();
+
+        } else {
+
+          this.notificationsService.error(
+            'Error',
+            res.message || 'Unable to reset password'
+          );
+        }
+      },
+
+      error: (err: any) => {
+
+        this.loading = false;
+
+        this.notificationsService.error(
+          'Error',
+          err.error?.message || 'Unable to reset password'
+        );
+      }
+    });
+  }
+
+  onOtpInput(event: any) {
+
+    event.target.value =
+      event.target.value
+        .replace(/[^0-9]/g, '')
+        .slice(0, 6);
+
+    this.otp = event.target.value;
+  }
+
+  
   // ---------- LOGIN API ----------
   loginapi() {
     if (!this.email || !this.password) {
@@ -207,10 +415,24 @@ export class LoginPageComponent {
 
     }
   }
-  showForgot = false;
 
 
-  flipToForgot() { this.route.navigate(['/register']) } // flip 2nd side
+  flipToForgot() {
+
+    this.showForgot = true;
+
+    this.forgotStep = 1;
+
+    this.forgotEmail = '';
+    this.otp = '';
+    this.newPassword = '';
+    this.confirmNewPassword = '';
+
+    this.otpVerified = false;
+
+    this.isFlipped = false;
+  }
+  
   showUnpaidCard() { this.route.navigate(['/unpaiduser']) } // flip 2nd side
 
   goToHome() { this.route.navigate(['/home']);}

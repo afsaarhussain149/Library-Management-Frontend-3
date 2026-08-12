@@ -72,4 +72,27 @@ export class homeService {
     }
     return `${this.apiUrl}${path.startsWith('/') ? path : '/' + path}`;
   }
+
+  // ================= FORGOT PASSWORD =================
+
+  forgotPassword(data: any): Observable<any> {
+    return this.http.post<any>(
+      this.apiUrl + '/api/auth/forgot-password',
+      data
+    );
+  }
+
+  verifyOtp(data: any): Observable<any> {
+    return this.http.post<any>(
+      this.apiUrl + '/api/auth/verify-otp',
+      data
+    );
+  }
+
+  resetPassword(data: any): Observable<any> {
+    return this.http.post<any>(
+      this.apiUrl + '/api/auth/reset-password',
+      data
+    );
+  }
 }
