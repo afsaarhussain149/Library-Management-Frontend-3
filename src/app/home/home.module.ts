@@ -23,6 +23,7 @@ import { StudentDetailsComponent } from './student-details/student-details.compo
 import { SingleStudentDetailComponent } from './single-student-detail/single-student-detail.component';
 import { SeatDetailsComponent } from './seat-details/seat-details.component';
 import { FeeRecordsComponent } from './fee-records/fee-records.component';
+import { SeatOverviewComponent } from './seat-overview/seat-overview.component';
 
 
 
@@ -41,6 +42,7 @@ const routes: Routes = [
   { path: 'single-student-detail', component: SingleStudentDetailComponent },
   { path: 'seat-details', component: SeatDetailsComponent },
   { path: 'fee-records', component: FeeRecordsComponent },
+  { path: 'seat-overview', component: SeatOverviewComponent },
 ];
 
 
@@ -61,6 +63,7 @@ const routes: Routes = [
     StudentDetailsComponent,
     SingleStudentDetailComponent,
     FeeRecordsComponent,
+    SeatOverviewComponent,
   ],
   imports: [
     CommonModule,

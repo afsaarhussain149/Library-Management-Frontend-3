@@ -16,18 +16,27 @@ export class FeeRecordsComponent implements OnInit {
   total = 0;
   totalAmount = 0;
 
+  // Pagination
+  page = 1;
+  totalPages = 0;
+
   notificationOptions: Options = {
     position: ['top', 'right'],
     timeOut: 3000,
   };
 
-  // Filters: student name, phone no, payment mode, month of payment
+  // Filters: student name, phone no, payment mode, month of payment,
+  // and month/year of plan EXPIRY
   filters = {
     studentName: '',
     phone: '',
     paymentMode: '',   // '' = all, else 'online' | 'cash'
-    month: ''          // '' = all months, else '1'..'12'
+    month: '',          // '' = all months, else '1'..'12' (payment month)
+    expireMonth: '',     // '' = all months, else '1'..'12' (expiry month)
+    expireYear: ''       // '' = all years, else e.g. '2026'
   };
+
+  years: number[] = [];
 
   months = [
     { value: '1', label: 'January' }, { value: '2', label: 'February' },
@@ -38,25 +47,33 @@ export class FeeRecordsComponent implements OnInit {
     { value: '11', label: 'November' }, { value: '12', label: 'December' }
   ];
 
-  constructor(private http: HttpClient, private notifications: NotificationsService) { }
+  constructor(private http: HttpClient, private notifications: NotificationsService) {
+    // Build a small dropdown of years: 2 years back to 2 years ahead
+    const current = new Date().getFullYear();
+    for (let y = current - 2; y <= current + 2; y++) {
+      this.years.push(y);
+    }
+  }
 
   ngOnInit(): void {
-    this.fetchFeeRecords();
+    this.fetchFeeRecords(1);
   }
 
   applyFilter() {
-    this.fetchFeeRecords();
+    this.fetchFeeRecords(1);
   }
 
   clearFilter() {
-    this.filters = { studentName: '', phone: '', paymentMode: '', month: '' };
-    this.fetchFeeRecords();
+    this.filters = { studentName: '', phone: '', paymentMode: '', month: '', expireMonth: '', expireYear: '' };
+    this.fetchFeeRecords(1);
   }
 
-  fetchFeeRecords() {
+  fetchFeeRecords(page: number) {
+    if (page < 1 || (this.totalPages && page > this.totalPages)) return;
+
     this.loading = true;
 
-    let params = new HttpParams();
+    let params = new HttpParams().set('page', page);
     if (this.filters.studentName) {
       params = params.set('studentName', this.filters.studentName);
     }
@@ -69,11 +86,19 @@ export class FeeRecordsComponent implements OnInit {
     if (this.filters.month) {
       params = params.set('month', this.filters.month);
     }
+    if (this.filters.expireMonth) {
+      params = params.set('expireMonth', this.filters.expireMonth);
+    }
+    if (this.filters.expireYear) {
+      params = params.set('expireYear', this.filters.expireYear);
+    }
 
     this.http.get<any>(`${this.api}/api/payments/fee-records`, { params }).subscribe({
       next: (res) => {
         this.rows = res?.data || [];
         this.total = res?.total || 0;
+        this.page = res?.page || 1;
+        this.totalPages = res?.totalPages || 0;
         this.totalAmount = this.rows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
         this.loading = false;
       },
@@ -90,14 +115,6 @@ export class FeeRecordsComponent implements OnInit {
     return d.toLocaleDateString('en-GB'); // dd/mm/yyyy
   }
 
-  // Opens the phone's native SMS app, pre-addressed to this student's
-  // number, with a professional reminder message already typed into the
-  // body - the admin just has to hit Send.
-  //
-  // Note: SMS is a PLAIN TEXT protocol - it has no concept of bold or
-  // font size, on any phone or carrier. There is no way to make part of
-  // an SMS body bold/bigger; that's a hard platform limitation, not a
-  // missing feature here.
   openSms(row: any) {
     if (!row?.phone) {
       this.notifications.error('Error', 'No phone number found for this student');
@@ -112,9 +129,6 @@ export class FeeRecordsComponent implements OnInit {
 
     const encodedMessage = encodeURIComponent(message);
 
-    // The sms: URI's separator before "body=" differs by platform -
-    // iOS wants "&", Android/desktop want "?". Using the wrong one
-    // silently drops the pre-filled text on some devices.
     const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent);
     const separator = isIos ? '&' : '?';
 
@@ -122,22 +136,12 @@ export class FeeRecordsComponent implements OnInit {
     window.open(smsUrl, '_self');
   }
 
-  // Opens WhatsApp (app on mobile, WhatsApp Web on desktop) with a chat
-  // to this student's number already open, and a professional reminder
-  // pre-filled in the input box. WhatsApp DOES support light formatting
-  // via plain-text markers: wrapping a word in *asterisks* renders it
-  // bold once the message is actually sent/viewed in WhatsApp - but,
-  // like SMS, there is no way to change font SIZE; WhatsApp (and every
-  // major messaging app) simply doesn't expose that.
   openWhatsApp(row: any) {
     if (!row?.phone) {
       this.notifications.error('Error', 'No phone number found for this student');
       return;
     }
 
-    // wa.me requires the number WITH country code and no symbols/spaces.
-    // Our stored numbers are plain 10-digit Indian numbers, so we prefix
-    // 91 - adjust here if the library ever serves non-Indian numbers.
     let phone = row.phone.toString().replace(/\D/g, '');
     if (phone.length === 10) {
       phone = '91' + phone;

@@ -33,6 +33,8 @@ export class UserPageComponent implements OnInit, OnDestroy {
   age: number | undefined;
   seat: any;
   photoUrl: string = '';
+  showPassword = false;
+  
   downloadPdf() {
     const element = document.getElementById('id-card-print');
     if (!element) return;

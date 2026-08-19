@@ -53,6 +53,22 @@
       </select>
     </div>
 
+    <div class="flex flex-col">
+      <label class="text-xs text-gray-500 mb-1">Expire Month</label>
+      <select [(ngModel)]="filters.expireMonth" (change)="applyFilter()" class="border rounded-lg px-3 py-2 text-sm w-full md:w-40">
+        <option value="">All Months</option>
+        <option *ngFor="let m of months" [value]="m.value">{{ m.label }}</option>
+      </select>
+    </div>
+
+    <div class="flex flex-col">
+      <label class="text-xs text-gray-500 mb-1">Expire Year</label>
+      <select [(ngModel)]="filters.expireYear" (change)="applyFilter()" class="border rounded-lg px-3 py-2 text-sm w-full md:w-40">
+        <option value="">All Years</option>
+        <option *ngFor="let y of years" [value]="y">{{ y }}</option>
+      </select>
+    </div>
+
     <div class="flex gap-2">
       <button (click)="applyFilter()"
               class="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-purple-700">
@@ -79,6 +95,7 @@
           <th class="px-4 py-3">Plan Type</th>
           <th class="px-4 py-3">Status</th>
           <th class="px-4 py-3">Payment Date</th>
+          <th class="px-4 py-3">Expire Date</th>
           <th class="px-4 py-3">Actions</th>
         </tr>
       </thead>
@@ -96,6 +113,7 @@
             </span>
           </td>
           <td class="px-4 py-3">{{ formatDate(row.paymentDate) }}</td>
+          <td class="px-4 py-3">{{ formatDate(row.expireDate) }}</td>
                     <td class="px-4 py-3">
             <div class="flex gap-2">
               <button (click)="openSms(row)"
@@ -115,12 +133,29 @@
         </tr>
 
         <tr *ngIf="!loading && rows.length === 0">
-          <td colspan="8" class="px-4 py-6 text-center text-gray-500">
+          <td colspan="9" class="px-4 py-6 text-center text-gray-500">
             No matching fee records found.
           </td>
         </tr>
       </tbody>
     </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-4">
+      <button (click)="fetchFeeRecords(page - 1)" [disabled]="page === 1"
+              class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
+        Prev
+      </button>
+
+      <span class="text-sm text-gray-600">
+        Page {{ page }} of {{ totalPages }} ({{ total }} records)
+      </span>
+
+      <button (click)="fetchFeeRecords(page + 1)" [disabled]="page === totalPages"
+              class="px-4 py-2 bg-gray-200 rounded disabled:opacity-50">
+        Next
+      </button>
   </div>
 
   <!-- <div class="flex justify-between mt-3">
