@@ -51,9 +51,23 @@ export class SeatComponent implements OnInit {
   // -----------------------------
   loadBookedSeats() {
 
-    this.http
-      .get<any>(`https://library-management-backend-3-62tq.onrender.com/api/payments/seats/status?shift=${encodeURIComponent(this.shifttime)}`)
- // 🔁 your API
+  // During a RENEWAL, sessionStorage has 'takeuserdetails' with the
+  // student's own userId (set by student-header's renewPlan()).
+  let userId = '';
+  try {
+     const raw = sessionStorage.getItem('takeuserdetails');
+     const parsed = raw ? JSON.parse(raw) : null;
+    if (parsed?.userId) userId = parsed.userId;
+  } catch { }
+
+  let url = `https://library-management-backend-3-62tq.onrender.com/api/payments/seats/status?shift=${encodeURIComponent(this.shifttime)}`;
+   if (userId) {
+    url += `&userId=${encodeURIComponent(userId)}`;
+  }
+
+  this.http
+  .get<any>(url)
+  // 🔁 your API
       .subscribe((res) => {
         if (!res?.seats) return;
 
@@ -69,6 +83,16 @@ export class SeatComponent implements OnInit {
             }
           }
         });
+        // Renewal case: pre-select the student's own current seat(s) so
+       // it shows green (selected) instead of red.
+       const currentSeats: number[] = res.currentSeats || [];
+       if (currentSeats.length) {
+         currentSeats.forEach((id: number) => {
+           const seat = this.seats.find(s => s.id === id);
+           if (seat) seat.status = 'selected';
+         });
+         this.emitSelectedSeats();
+       }
       });
   }
 
