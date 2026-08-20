@@ -254,8 +254,8 @@
         bg-white/20 backdrop-blur-sm p-4"
 >
   <div
-    class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fadeIn
-          flex flex-col space-y-6"
+    class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-4 sm:p-6 relative animate-fadeIn
+         flex flex-col space-y-6 max-h-[90vh] overflow-y-auto"
   >
 
     <!-- Close -->
@@ -315,8 +315,8 @@
         bg-white/20 backdrop-blur-sm p-4"
 >
   <div
-    class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fadeIn
-          flex flex-col space-y-6"
+    class="bg-white w-full max-w-lg rounded-2xl shadow-xl p-4 sm:p-6 relative animate-fadeIn
+         flex flex-col space-y-6 max-h-[90vh] overflow-y-auto"
   >
     <button
       (click)="closeSeatModal()"
@@ -354,7 +354,7 @@
 
   <div
     *ngIf="!seatStatusLoading && seatStatusList.length"
-    class="grid grid-cols-8 gap-2 max-h-64 overflow-y-auto p-1 border rounded-lg"
+    class="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-8 gap-1.5 sm:gap-2 max-h-64 overflow-y-auto p-1 border rounded-lg"
   >
     <button
       *ngFor="let seat of seatStatusList"
@@ -443,11 +443,11 @@
       </p>
     </div>
 
-    <div class="flex justify-center gap-4">
+    <div class="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
       <button
         (click)="closeSeatModal()"
         [disabled]="seatChangeLoading"
-        class="px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
+        class="w-full sm:w-auto px-6 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition disabled:opacity-50"
       >
         Cancel
       </button>
@@ -455,7 +455,7 @@
       <button
         (click)="confirmSeatChange()"
         [disabled]="seatChangeLoading"
-        class="px-6 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition disabled:opacity-50"
+        class="w-full sm:w-auto px-6 py-2 rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition disabled:opacity-50"
       >
         {{ seatChangeLoading ? 'Saving...' : 'Save Seat' }}
       </button>
