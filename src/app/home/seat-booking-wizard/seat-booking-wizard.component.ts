@@ -126,11 +126,34 @@ export class SeatBookingWizardComponent implements OnInit {
     maxLength: 0,
   };
 
-  calculatePlanDates(months: number, baseDate?: Date | null) {
-    const startDate = (baseDate && !isNaN(baseDate.getTime())) ? new Date(baseDate) : new Date();
-    const endDate = new Date(startDate);
+  // calculatePlanDates(months: number, baseDate?: Date | null) {
+  //   const startDate = (baseDate && !isNaN(baseDate.getTime())) ? new Date(baseDate) : new Date();
+  //   const endDate = new Date(startDate);
 
+  //   endDate.setMonth(endDate.getMonth() + months);
+
+  //   return {
+  //     planStartDate: startDate.toISOString(),
+  //     planEndDate: endDate.toISOString()
+  //   };
+  // }
+
+  calculatePlanDates(months: number, baseDate?: Date | null, joiningDate?: Date | null) {
+    const startDate = (baseDate && !isNaN(baseDate.getTime())) ? new Date(baseDate) : new Date();
+
+    // Anchor day = joining date's day-of-month.
+    const anchorDay = (joiningDate && !isNaN(joiningDate.getTime()))
+      ? joiningDate.getDate()
+      : startDate.getDate();
+
+    // Move to the 1st before adding months (avoids JS month-rollover bugs).
+    const endDate = new Date(startDate);
+    endDate.setDate(1);
     endDate.setMonth(endDate.getMonth() + months);
+
+    // Clamp day to the target month's max days (e.g. Feb doesn't have 31 days).
+    const daysInTargetMonth = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate();
+    endDate.setDate(Math.min(anchorDay, daysInTargetMonth));
 
     return {
       planStartDate: startDate.toISOString(),
@@ -162,6 +185,7 @@ export class SeatBookingWizardComponent implements OnInit {
       next: (res) => {
         const payments = res?.data || [];
         let baseDate: Date | null = null;
+        const joiningDate: Date | null = res?.joiningDate ? new Date(res.joiningDate) : null;
 
         const isFirstTimeRegistration = !payments.some((p: any) => p.status === 'paid');
 
@@ -181,16 +205,16 @@ export class SeatBookingWizardComponent implements OnInit {
           }
         }
 
-        this.buildPayloadAndPay(months, baseDate, isFirstTimeRegistration);
+        this.buildPayloadAndPay(months, baseDate, isFirstTimeRegistration, joiningDate);
       },
       error: () => {
-        this.buildPayloadAndPay(months, null, true);
+        this.buildPayloadAndPay(months, null, true, null);
       }
     });
   }
 
-private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeRegistration: boolean) {
-  const { planStartDate, planEndDate } = this.calculatePlanDates(months, baseDate);
+private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeRegistration: boolean, joiningDate: Date | null) {
+  const { planStartDate, planEndDate } = this.calculatePlanDates(months, baseDate, joiningDate);
 
   const applyRegistrationFee = this.selectedPlanData.type == 'Monthly' && isFirstTimeRegistration;
 
