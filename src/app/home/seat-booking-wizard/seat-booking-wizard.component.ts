@@ -47,6 +47,10 @@ export class SeatBookingWizardComponent implements OnInit {
   readonly RAZORPAY_FEE_RATE = 0.0236;   // 2% + 18% GST
   isFirstTimeRegistration: boolean | null = null;
 
+  showSuccessOverlay = false;
+  successOverlayIsNew = true;  
+  successOverlayIsCash = false;
+
   allowOnlyNumbers(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
     // Allow only numbers (0-9)
@@ -261,7 +265,20 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
     return;
   }
 }
-  cashRequest(data: any) {
+
+private showSuccessAndRedirect(isNew: boolean, isCash: boolean) {
+  this.successOverlayIsNew = isNew;
+  this.successOverlayIsCash = isCash;
+  this.showSuccessOverlay = true;
+  this.cdr.detectChanges();
+
+  setTimeout(() => {
+    this.showSuccessOverlay = false;
+    this.route.navigate(['/login']);
+  }, 15000);
+}
+
+cashRequest(data: any) {
     this.http.post(`${this.backendUrl}/cash-request`, data)
       .subscribe((res: any) => {
         if (res.success) {
@@ -293,12 +310,16 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
           this.loading = true;
           // sessionStorage.setItem("userdata",JSON.stringify(formData))
           this.http.post<any>('https://library-management-backend-3-62tq.onrender.com/api/auth/complete-profile', formData).subscribe({
+            // next: (res: any) => {
+            //   this.loading = false;
+            //   this.notifications.success('Success', 'Profile completed successfully');
+
+            //   this.route.navigate(['/login'])
+
+            // },
             next: (res: any) => {
               this.loading = false;
-              this.notifications.success('Success', 'Profile completed successfully');
-
-              this.route.navigate(['/login'])
-
+              this.showSuccessAndRedirect(this.isFirstTimeRegistration === true, true);
             },
             error: (err) => {
               this.loading = false;
@@ -376,7 +397,6 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
         if (res?.success) {
           this.notifications.success('Payment verified', 'Payment successful and saved.');
           // optional: mark seats booked locally / navigate to success page
-          debugger
           const formData = new FormData();
 
           // identifier
@@ -404,12 +424,16 @@ private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeReg
           this.loading = true;
           // sessionStorage.setItem("userdata",JSON.stringify(formData))
           this.http.post<any>('https://library-management-backend-3-62tq.onrender.com/api/auth/complete-profile', formData).subscribe({
+            // next: (res: any) => {
+            //   this.loading = false;
+            //   this.notifications.success('Success', 'Profile completed successfully');
+
+            //   this.route.navigate(['/login'])
+
+            // },
             next: (res: any) => {
               this.loading = false;
-              this.notifications.success('Success', 'Profile completed successfully');
-
-              this.route.navigate(['/login'])
-
+              this.showSuccessAndRedirect(this.isFirstTimeRegistration === true, false);
             },
             error: (err) => {
               this.loading = false;

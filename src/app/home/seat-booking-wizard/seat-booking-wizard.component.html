@@ -2,6 +2,51 @@
   <span class="loader"></span>
 </div>
 
+<div *ngIf="loading" class="loader-overlay">
+  <span class="loader"></span>
+</div>
+
+<!-- YE NAYA BLOCK ADD HUA -->
+<div *ngIf="showSuccessOverlay" class="success-overlay">
+  <div class="success-card">
+    <div class="success-sticker">
+      <span class="success-sticker-emoji">📚</span>
+      <span class="success-sticker-check">✅</span>
+    </div>
+
+    <ng-container *ngIf="successOverlayIsNew; else renewalMsg">
+      <h2 class="success-title">Thank You for Registering!</h2>
+      <p class="success-subtitle">🎉 Congratulations, you are now a Library Member! 🎉</p>
+      <p class="success-body" *ngIf="!successOverlayIsCash">
+        Your payment has been verified successfully. Please log in using your
+        registered phone number &amp; password on the Login page to access your dashboard.
+      </p>
+      <p class="success-body" *ngIf="successOverlayIsCash">
+        Your cash payment request has been sent and is pending admin approval.
+        Meanwhile, please log in using your registered phone number &amp; password on the Login page.
+      </p>
+    </ng-container>
+
+    <ng-template #renewalMsg>
+      <h2 class="success-title">Renewal Successful!</h2>
+      <p class="success-subtitle">🎉 Your Library Plan has been Renewed! 🎉</p>
+      <p class="success-body" *ngIf="!successOverlayIsCash">
+        Your payment has been verified successfully and your plan is now active.
+        Please log in again on the Login page to continue enjoying your membership.
+      </p>
+      <p class="success-body" *ngIf="successOverlayIsCash">
+        Your cash renewal request has been sent and is pending admin approval.
+        Please log in again on the Login page to continue enjoying your membership.
+      </p>
+    </ng-template>
+
+    <p class="success-redirect-note">Redirecting you to the Login page…</p>
+    <div class="success-progress-track">
+      <div class="success-progress-bar"></div>
+    </div>
+  </div>
+</div>
+
 <app-student-header></app-student-header>
 <simple-notifications [options]="notificationOptions"></simple-notifications>
 
@@ -292,7 +337,7 @@
 
           <div>
             <label class="block mb-2 font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
-            <input type="password" placeholder="password" name="regpassword" [(ngModel)]="regpassword"
+            <input type="text" placeholder="password" name="regpassword" [(ngModel)]="regpassword"
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
           </div>
         </div>

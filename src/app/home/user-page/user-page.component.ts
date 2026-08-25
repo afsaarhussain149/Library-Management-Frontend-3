@@ -295,6 +295,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
       fatherName: this.userdata.fatherName,
       gender: this.userdata.gender,
       dob: this.userdata.dob,
+      createdAt: this.formatToMMDDYYYY(this.userdata.createdAt),
       email: this.userdata.email,
       personalNumber: this.userdata.personalNumber,
       emergencyNumber: this.userdata.emergencyNumber,
@@ -350,5 +351,17 @@ export class UserPageComponent implements OnInit, OnDestroy {
 
   removePhoto() {
     this.form.photo = null;
+  }
+
+  formatToMMDDYYYY(dateStr: string): string {
+    if (!dateStr) return '';
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
+
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
   }
 }

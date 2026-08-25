@@ -315,7 +315,7 @@
             <!-- FIELD -->
             <div class="flex flex-col sm:flex-row sm:items-center">
               <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
-                Name (Capital) 
+                Full Name
               </span>
               
               <input class="input-line"
@@ -353,6 +353,16 @@
 
             <div class="flex flex-col sm:flex-row sm:items-center">
               <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
+                Date of Joining
+              </span>
+              <input type="date"
+                     class="input-line"
+                     [(ngModel)]="form.createdAt" disabled
+                     >
+            </div>
+
+            <div class="flex flex-col sm:flex-row sm:items-center">
+              <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
                 Email
               </span>
               <input class="input-line"
@@ -385,7 +395,7 @@
 
             <div class="flex flex-col sm:flex-row sm:items-center">
               <span class="sm:w-44 font-semibold mb-1 sm:mb-0">
-                Password
+                Change Password
               </span>
 
               <!-- Password Input + Eye Icon -->
