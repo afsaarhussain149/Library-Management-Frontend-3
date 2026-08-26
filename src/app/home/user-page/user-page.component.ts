@@ -34,7 +34,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
   seat: any;
   photoUrl: string = '';
   showPassword = false;
-  
+
   downloadPdf() {
     const element = document.getElementById('id-card-print');
     if (!element) return;
@@ -284,18 +284,20 @@ export class UserPageComponent implements OnInit, OnDestroy {
   };
 
   selectedImage: File | null = null;
+  originalPhotoUrl: string = ''; // photo actually saved on the server right now
 
   onImageSelect(event: any) {
     this.selectedImage = event.target.files[0];
   }
 
   openEditProfile() {
+    this.originalPhotoUrl = this.userdata.photo || '';
+
     this.form = {
       fullName: this.userdata.fullName,
       fatherName: this.userdata.fatherName,
       gender: this.userdata.gender,
       dob: this.userdata.dob,
-      createdAt: this.formatToMMDDYYYY(this.userdata.createdAt),
       email: this.userdata.email,
       personalNumber: this.userdata.personalNumber,
       emergencyNumber: this.userdata.emergencyNumber,
@@ -349,10 +351,6 @@ export class UserPageComponent implements OnInit, OnDestroy {
     });
   }
 
-  removePhoto() {
-    this.form.photo = null;
-  }
-
   formatToMMDDYYYY(dateStr: string): string {
     if (!dateStr) return '';
     const date = new Date(dateStr);
@@ -363,5 +361,39 @@ export class UserPageComponent implements OnInit, OnDestroy {
     const day = String(date.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
+  }
+
+  removePhoto() {
+    // Case 1: an unsaved new photo was just picked - just cancel that selection.
+    if (this.selectedImage) {
+      this.selectedImage = null;
+      this.form.photo = this.originalPhotoUrl;
+      return;
+    }
+
+    // Case 2: no pending selection, so this IS the actual saved photo -
+    // permanently delete it from Cloudinary + the database.
+    if (!this.originalPhotoUrl) {
+      return;
+    }
+
+    if (!confirm('Remove this photo permanently? This cannot be undone.')) {
+      return;
+    }
+
+    this.loading = true;
+    this.http.delete<any>(`https://library-management-backend-3-62tq.onrender.com/api/auth/user/remove-photo/${this.userdata.userId}`).subscribe({
+      next: () => {
+        this.loading = false;
+        this.form.photo = null;
+        this.originalPhotoUrl = '';
+        this.userdata.photo = null;
+        this.notifications.success('Success', 'Photo removed successfully');
+      },
+      error: (err) => {
+        this.loading = false;
+        this.notifications.error('Error', err.error?.msg || 'Failed to remove photo');
+      }
+    });
   }
 }

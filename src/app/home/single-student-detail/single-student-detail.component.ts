@@ -50,6 +50,11 @@ export class SingleStudentDetailComponent implements OnInit {
     // /api/auth/all-users?userId=X ka response: { success, total, data: [{...}] }
     // data.profile me wahi first object aayega
     const profile = this.data?.profile || {};
+    const photoUrl = this.getPhotoUrl(profile.photo);
+
+    // Remembers what's actually SAVED on the server right now, so removePhoto()
+    // can tell "cancel an unsaved new selection" apart from "delete the real saved photo".
+    this.originalPhotoUrl = photoUrl;
 
     this.form = {
       fullName: profile.full_name || this.data?.fullName || '',
@@ -63,7 +68,7 @@ export class SingleStudentDetailComponent implements OnInit {
       presentAddress: profile.present_address || this.data?.presentAddress || '',
       permanentAddress: profile.permanent_address || this.data?.permanentAddress || '',
       aadh: profile.aadhar_number || this.data?.aadharNumber || '',
-      photo: this.getPhotoUrl(profile.photo),
+      photo: photoUrl,
       seat: this.data?.payment?.seats?.[0],
       slot: this.data?.payment?.shift?.time,
       hour: this.data?.payment?.shift?.hour,
@@ -91,7 +96,9 @@ export class SingleStudentDetailComponent implements OnInit {
     aadh: '',
     password: ''
   };
+
   selectedImage: File | null = null;
+  originalPhotoUrl: string = ''; // photo actually saved on the server right now
   constructor(private Rout: Router, private notifications: NotificationsService, private http: HttpClient) { }
 
   onImageSelect(event: any): void {
@@ -118,7 +125,37 @@ export class SingleStudentDetailComponent implements OnInit {
   }
 
   removePhoto(): void {
-    this.form.photo = '';
+    // Case 1: an unsaved new photo was just picked (not saved yet) -
+    // "Remove" here just cancels that pending selection.
+    if (this.selectedImage) {
+      this.selectedImage = null;
+      this.form.photo = this.originalPhotoUrl;
+      return;
+    }
+
+    // Case 2: no pending selection, so this IS the actual saved photo -
+    // permanently delete it from Cloudinary + the database.
+    if (!this.originalPhotoUrl) {
+      return;
+    }
+
+    if (!confirm('Remove this photo permanently? This cannot be undone.')) {
+      return;
+    }
+
+    this.loading = true;
+    this.http.delete<any>(`${this.API_BASE_URL}/api/auth/user/remove-photo/${this.data.userId}`).subscribe({
+      next: () => {
+        this.loading = false;
+        this.form.photo = '';
+        this.originalPhotoUrl = '';
+        this.notifications.success('Success', 'Photo removed successfully');
+      },
+      error: (err) => {
+        this.loading = false;
+        this.notifications.error('Error', err.error?.msg || 'Failed to remove photo');
+      }
+    });
   }
 
   updateProfile() {

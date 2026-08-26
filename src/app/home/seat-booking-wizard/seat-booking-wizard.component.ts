@@ -48,7 +48,7 @@ export class SeatBookingWizardComponent implements OnInit {
   isFirstTimeRegistration: boolean | null = null;
 
   showSuccessOverlay = false;
-  successOverlayIsNew = true;  
+  successOverlayIsNew = true;
   successOverlayIsCash = false;
 
   allowOnlyNumbers(event: KeyboardEvent) {
@@ -62,7 +62,7 @@ export class SeatBookingWizardComponent implements OnInit {
   // PLAN DATA
   // -----------------------
   plans = [
-    { hours: 4, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 1, months: 1 }, { name: 'Quarterly', price: 1440, months: 3 }, { name: 'Half Yearly', price: 2700, months: 6 }, { name: 'Annually', price: 4800, months: 12 }] },
+    { hours: 4, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 500, months: 1 }, { name: 'Quarterly', price: 1440, months: 3 }, { name: 'Half Yearly', price: 2700, months: 6 }, { name: 'Annually', price: 4800, months: 12 }] },
     { hours: 6, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 650, months: 1 }, { name: 'Quarterly', price: 1860, months: 3 }, { name: 'Half Yearly', price: 3420, months: 6 }, { name: 'Annually', price: 6600, months: 12 }] },
     { hours: 8, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 800, months: 1 }, { name: 'Quarterly', price: 2340, months: 3 }, { name: 'Half Yearly', price: 4500, months: 6 }, { name: 'Annually', price: 8400, months: 12 }] },
     { hours: 10, selected: false, selectedOption: '', options: [{ name: 'Monthly', price: 1000, months: 1 }, { name: 'Quarterly', price: 2880, months: 3 }, { name: 'Half Yearly', price: 5640, months: 6 }, { name: 'Annually', price: 10800, months: 12 }] },
@@ -87,7 +87,7 @@ export class SeatBookingWizardComponent implements OnInit {
 
   get baseTotal(): number {
     const planAmount = this.selectedPlanData?.amount || 0;
-    return planAmount + (this.registrationFeeApplicable ? 0 : 0);
+    return planAmount + (this.registrationFeeApplicable ? 200 : 0);
   }
 
   get convenienceFee(): number {
@@ -217,68 +217,68 @@ export class SeatBookingWizardComponent implements OnInit {
     });
   }
 
-private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeRegistration: boolean, joiningDate: Date | null) {
-  const { planStartDate, planEndDate } = this.calculatePlanDates(months, baseDate, joiningDate);
+  private buildPayloadAndPay(months: number, baseDate: Date | null, isFirstTimeRegistration: boolean, joiningDate: Date | null) {
+    const { planStartDate, planEndDate } = this.calculatePlanDates(months, baseDate, joiningDate);
 
-  const applyRegistrationFee = this.selectedPlanData.type == 'Monthly' && isFirstTimeRegistration;
+    const applyRegistrationFee = this.selectedPlanData.type == 'Monthly' && isFirstTimeRegistration;
 
-  this.isFirstTimeRegistration = isFirstTimeRegistration;   
-  this.newprice = this.grandTotal * 100;                 
+    this.isFirstTimeRegistration = isFirstTimeRegistration;
+    this.newprice = this.grandTotal * 100;
 
-  let userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || '');
+    let userdataid = JSON.parse(sessionStorage.getItem('takeuserdetails') || '');
 
-  const payload = {
-    amount: this.newprice,
-    currency: 'INR',
-    userId: userdataid.userId,
-    planHours: this.selectedPlanData.hours,
-    planType: this.selectedPlanData.type,
-    planAmount: this.selectedPlanData.amount,
-    shiftLabel: this.selectedShiftLabel,
-    shiftTime: this.selectedShiftTime,
-    seats: this.selectedSeats,
-    metadata: {
-      fullName: this.sessiondata?.fullName || '',
-      email: this.sessiondata?.email || '',
-      planId: this.selectedPlanData?.planId || ''
-    },
-    endPlanDate: planEndDate
-  };
-
-  if (this.paymentMode === 'online') {
-    const payloadd = {
-      ...payload,
+    const payload = {
       amount: this.newprice,
-      currency: 'INR'
+      currency: 'INR',
+      userId: userdataid.userId,
+      planHours: this.selectedPlanData.hours,
+      planType: this.selectedPlanData.type,
+      planAmount: this.selectedPlanData.amount,
+      shiftLabel: this.selectedShiftLabel,
+      shiftTime: this.selectedShiftTime,
+      seats: this.selectedSeats,
+      metadata: {
+        fullName: this.sessiondata?.fullName || '',
+        email: this.sessiondata?.email || '',
+        planId: this.selectedPlanData?.planId || ''
+      },
+      endPlanDate: planEndDate
     };
-    this.createOrderAndPay(payloadd);
-    return;
+
+    if (this.paymentMode === 'online') {
+      const payloadd = {
+        ...payload,
+        amount: this.newprice,
+        currency: 'INR'
+      };
+      this.createOrderAndPay(payloadd);
+      return;
+    }
+
+    if (this.paymentMode === 'cash') {
+      const cashPayload = {
+        ...payload,
+        amount: this.newprice,
+        paymentMode: "cash"
+      };
+      this.cashRequest(cashPayload);
+      return;
+    }
   }
 
-  if (this.paymentMode === 'cash') {
-    const cashPayload = {
-      ...payload,
-      amount: this.newprice,
-      paymentMode: "cash"
-    };
-    this.cashRequest(cashPayload);
-    return;
+  private showSuccessAndRedirect(isNew: boolean, isCash: boolean) {
+    this.successOverlayIsNew = isNew;
+    this.successOverlayIsCash = isCash;
+    this.showSuccessOverlay = true;
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.showSuccessOverlay = false;
+      this.route.navigate(['/login']);
+    }, 15000);
   }
-}
 
-private showSuccessAndRedirect(isNew: boolean, isCash: boolean) {
-  this.successOverlayIsNew = isNew;
-  this.successOverlayIsCash = isCash;
-  this.showSuccessOverlay = true;
-  this.cdr.detectChanges();
-
-  setTimeout(() => {
-    this.showSuccessOverlay = false;
-    this.route.navigate(['/login']);
-  }, 15000);
-}
-
-cashRequest(data: any) {
+  cashRequest(data: any) {
     this.http.post(`${this.backendUrl}/cash-request`, data)
       .subscribe((res: any) => {
         if (res.success) {
