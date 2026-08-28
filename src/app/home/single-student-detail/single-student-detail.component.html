@@ -39,6 +39,21 @@
     font-weight: 600;
   }
 
+  @media (max-width: 640px) {
+    .photo-box {
+      width: 120px;
+      height: 145px;
+    }
+    .signature-line {
+      width: 100%;
+      max-width: 200px;
+    }
+    .action-btn {
+      padding: 8px 14px;
+      font-size: 14px;
+    }
+  }
+
   /* 🔥 PRINT LOGIC */
   @media print {
 
@@ -77,12 +92,12 @@
 <app-admin-header class="no-print"></app-admin-header>
 
 <!-- ✅ PRINT AREA START -->
-<div class="flex justify-center bg-white py-10 print-area">
+<div class="flex justify-center bg-white py-4 sm:py-10 px-2 sm:px-0 print-area">
 
-  <div class="w-[850px] bg-white text-black p-10 shadow-lg border border-black">
+  <div class="w-full max-w-[850px] bg-white text-black p-4 sm:p-6 md:p-10 shadow-lg border border-black">
 
     <!-- HEADER -->
-    <h1 class="text-center text-3xl font-bold uppercase">
+    <h1 class="text-center text-xl sm:text-2xl md:text-3xl font-bold uppercase">
       Fouji Book Garden Library
     </h1>
 
@@ -95,7 +110,7 @@
     </h2>
 
     <!-- REGISTRATION -->
-    <div class="mt-6 flex justify-between">
+    <div class="mt-6 flex flex-wrap justify-between gap-2">
       <span class="bg-gray-300 px-4 py-1 font-semibold">
         Registration No. {{ data.userId }}
       </span>
@@ -107,23 +122,23 @@
     </div>
 
     <!-- BODY -->
-    <div class="grid grid-cols-3 gap-6 mt-6 text-sm">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 text-sm">
 
       <!-- LEFT -->
-      <div class="col-span-2 space-y-4">
+      <div class="md:col-span-2 space-y-4">
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Full Name</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Full Name</span>
           <input class="input-line" [(ngModel)]="form.fullName">
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Father Name</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Father Name</span>
           <input class="input-line" [(ngModel)]="form.fatherName">
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Gender</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Gender</span>
           <select class="input-line" [(ngModel)]="form.gender">
             <option value="">Select</option>
             <option>Male</option>
@@ -131,37 +146,37 @@
           </select>
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Date of Birth</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Date of Birth</span>
           <input type="date" class="input-line" [(ngModel)]="form.dob">
         </div>
-        <div class="flex">
-          <span class="w-40 font-semibold">Date of Joining</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Date of Joining</span>
           <input type="date" class="input-line" [(ngModel)]="form.createdAt" disabled>
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Slot Timing</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Slot Timing</span>
           <input class="input-line" [(ngModel)]="form.slot" disabled>
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Email</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Email</span>
           <input class="input-line" [(ngModel)]="form.email">
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Phone No</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Phone No</span>
           <input class="input-line" [(ngModel)]="form.personalNumber" disabled>
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Emergency No</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Emergency No</span>
           <input class="input-line" [(ngModel)]="form.emergencyNumber">
         </div>
 
-        <div class="flex">
-          <span class="w-40 font-semibold">Aadhar No</span>
+        <div class="flex flex-col sm:flex-row sm:items-center">
+          <span class="w-full sm:w-40 font-semibold">Aadhar No</span>
           <input class="input-line" [(ngModel)]="form.aadh" maxlength="12">
         </div>
 
@@ -180,7 +195,7 @@
       </div>
 
       <!-- PHOTO -->
-     <div class="flex flex-col items-center">
+     <div class="flex flex-col items-center mt-6 md:mt-0">
 
   <div class="photo-box">
   <img
@@ -223,7 +238,7 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="flex justify-between mt-12 text-sm">
+    <div class="flex flex-col sm:flex-row justify-between mt-12 gap-8 sm:gap-0 text-sm">
       <div>
         <p>Approved By</p>
         <div class="signature-line">Head of Library</div>
@@ -240,7 +255,7 @@
 <!-- ✅ PRINT AREA END -->
 
 <!-- ACTION BUTTONS -->
-<div class="flex justify-center gap-6 mb-10 no-print">
+<div class="flex flex-wrap justify-center gap-3 sm:gap-6 mb-10 px-2 no-print">
   <button class="action-btn" (click)="updateProfile()">Update</button>
   <button class="action-btn" (click)="downloadForm()">Download</button>
   <button class="action-btn" (click)="routeback()">Back</button>

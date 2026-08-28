@@ -23,7 +23,7 @@ const SHIFT_GROUPS: { label: string; times: string[] }[] = [
   { label: '4 Hrs', times: ['8:00 AM - 12:00 PM', '10:00 AM - 2:00 PM', '12:00 PM - 4:00 PM', '2:00 PM - 6:00 PM', '4:00 PM - 8:00 PM', '6:00 PM - 10:00 PM'] },
   { label: '6 Hrs', times: ['8:00 AM - 2:00 PM', '10:00 AM - 4:00 PM', '12:00 PM - 6:00 PM', '2:00 PM - 8:00 PM', '4:00 PM - 10:00 PM'] },
   { label: '8 Hrs', times: ['8:00 AM - 4:00 PM', '10:00 AM - 6:00 PM', '12:00 PM - 8:00 PM', '2:00 PM - 10:00 PM'] },
-  { label: '10 Hrs', times: ['8:00 AM - 6:00 PM', '10:00 AM - 8:00 PM', '12:00 PM - 10:00 PM'] },
+  { label: '10 Hrs', times: ['8:00 AM - 6:00 PM', '12:00 PM - 10:00 PM'] },
   { label: '14 Hrs', times: ['8:00 AM - 10:00 PM'] },
 ];
 

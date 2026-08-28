@@ -109,7 +109,7 @@ export class SeatBookingWizardComponent implements OnInit {
     { label: '4 Hrs', times: ['8:00 AM - 12:00 PM', '10:00 AM - 2:00 PM', '12:00 PM - 4:00 PM', '2:00 PM - 6:00 PM', '4:00 PM - 8:00 PM', '6:00 PM - 10:00 PM'], open: false },
     { label: '6 Hrs', times: ['8:00 AM - 2:00 PM', '10:00 AM - 4:00 PM', '12:00 PM - 6:00 PM', '2:00 PM - 8:00 PM', '4:00 PM - 10:00 PM'], open: false },
     { label: '8 Hrs', times: ['8:00 AM - 4:00 PM', '10:00 AM - 6:00 PM', '12:00 PM - 8:00 PM', '2:00 PM - 10:00 PM'], open: false },
-    { label: '10 Hrs', times: ['8:00 AM - 6:00 PM', '10:00 AM - 8:00 PM', '12:00 PM - 10:00 PM'], open: false },
+    { label: '10 Hrs', times: ['8:00 AM - 6:00 PM', '12:00 PM - 10:00 PM'], open: false },
     { label: '14 Hrs', times: ['8:00 AM - 10:00 PM'], open: false },
   ];
   shifts = [...this.allShifts];
