@@ -481,7 +481,7 @@ export class SeatBookingWizardComponent implements OnInit {
       this.emergencyNumber = p.emergencyNumber || '';
       this.presentAddress = p.presentAddress || '';
       this.permanentAddress = p.permanentAddress || '';
-      this.aadhar = p.aadh || '';
+      this.aadhar = p.aadharNumber || p.aadh || '';
       this.gender = p.gender || '';
       // password intentionally left blank - student re-enters it for security
     }
@@ -591,6 +591,8 @@ export class SeatBookingWizardComponent implements OnInit {
     formData.append('emergencyNumber', this.emergencyNumber || '');
     formData.append('presentAddress', this.presentAddress || '');
     formData.append('permanentAddress', this.permanentAddress || '');
+    formData.append('aadh', this.aadhar || '');
+    formData.append('gender', this.gender || '');
     formData.append('password', this.regpassword || '');
 
     // ✅ Image (ONLY if selected)
@@ -863,6 +865,8 @@ export class SeatBookingWizardComponent implements OnInit {
       formData.append('emergencyNumber', this.emergencyNumber || '');
       formData.append('presentAddress', this.presentAddress || '');
       formData.append('permanentAddress', this.permanentAddress || '');
+      formData.append('aadh', this.aadhar || '');
+      formData.append('gender', this.gender || '');
       formData.append('password', this.regpassword || '');
 
       if (this.selectedFile) {
@@ -937,6 +941,11 @@ export class SeatBookingWizardComponent implements OnInit {
       return false;
     }
 
+     if (!this.emailReg?.trim()) {
+      this.notifications.error('Error', 'Email For field is required');
+      return false;
+    }
+
     if (!this.personalNumber?.trim()) {
       this.notifications.error('Error', 'Personal Number is required');
       return false;
@@ -964,6 +973,16 @@ export class SeatBookingWizardComponent implements OnInit {
 
     if (!this.permanentAddress?.trim()) {
       this.notifications.error('Error', 'Permanent Address is required');
+      return false;
+    }
+
+    if (!this.aadhar?.trim()) {
+      this.notifications.error('Error', 'Aadhaar For field is required');
+      return false;
+    }
+
+    if (!this.gender?.trim()) {
+      this.notifications.error('Error', 'Gender For field is required');
       return false;
     }
 
