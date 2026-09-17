@@ -337,7 +337,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
 
     this.loading = true;
 
-    this.http.put('https://library-management-backend-3-62tq.onrender.com/api/auth/user/edit-profile', formData).subscribe({
+    this.http.put('https://api.foujibookgardenlibrary.com/api/auth/user/edit-profile', formData).subscribe({
       next: (res: any) => {
         this.notifications.success('Success', 'Profile updated successfully');
         sessionStorage.clear();
@@ -382,7 +382,7 @@ export class UserPageComponent implements OnInit, OnDestroy {
     }
 
     this.loading = true;
-    this.http.delete<any>(`https://library-management-backend-3-62tq.onrender.com/api/auth/user/remove-photo/${this.userdata.userId}`).subscribe({
+    this.http.delete<any>(`https://api.foujibookgardenlibrary.com/api/auth/user/remove-photo/${this.userdata.userId}`).subscribe({
       next: () => {
         this.loading = false;
         this.form.photo = null;

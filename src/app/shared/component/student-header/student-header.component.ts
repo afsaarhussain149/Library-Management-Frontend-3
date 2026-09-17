@@ -18,7 +18,7 @@ export class StudentHeaderComponent implements OnInit {
   daysUntilExpiry: number | null = null;
   canRenew = false;
 
-  api: string = 'https://library-management-backend-3-62tq.onrender.com';
+  api: string = 'https://api.foujibookgardenlibrary.com';
 
   // -------------------- RENEW PLAN --------------------
   hasPlan = false;          // student has at least one paid plan ever

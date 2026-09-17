@@ -25,7 +25,7 @@ export class HomeTsComponent implements OnInit, AfterViewInit {
   mail: any
   message: any
   subject: any
-  api: any = 'https://library-management-backend-3-62tq.onrender.com';
+  api: any = 'https://api.foujibookgardenlibrary.com';
 
   mobileMenuOpen = false;
   @ViewChild('bgVideo') bgVideo!: ElementRef<HTMLVideoElement>;

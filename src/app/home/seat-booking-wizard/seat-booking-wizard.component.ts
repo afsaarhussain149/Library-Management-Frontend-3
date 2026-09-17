@@ -168,7 +168,7 @@ export class SeatBookingWizardComponent implements OnInit {
   isPlanSelected = false;
   paymentMode: string = "online"; // default
 
-  backendUrl = 'https://library-management-backend-3-62tq.onrender.com/api/payments';
+  backendUrl = 'https://api.foujibookgardenlibrary.com/api/payments';
   submit() {
     // validations
     if (!this.selectedPlanData) { this.notifications.warn('Please select a plan'); return; }
@@ -309,7 +309,7 @@ export class SeatBookingWizardComponent implements OnInit {
 
           this.loading = true;
           // sessionStorage.setItem("userdata",JSON.stringify(formData))
-          this.http.post<any>('https://library-management-backend-3-62tq.onrender.com/api/auth/complete-profile', formData).subscribe({
+          this.http.post<any>('https://api.foujibookgardenlibrary.com/api/auth/complete-profile', formData).subscribe({
             // next: (res: any) => {
             //   this.loading = false;
             //   this.notifications.success('Success', 'Profile completed successfully');
@@ -423,7 +423,7 @@ export class SeatBookingWizardComponent implements OnInit {
 
           this.loading = true;
           // sessionStorage.setItem("userdata",JSON.stringify(formData))
-          this.http.post<any>('https://library-management-backend-3-62tq.onrender.com/api/auth/complete-profile', formData).subscribe({
+          this.http.post<any>('https://api.foujibookgardenlibrary.com/api/auth/complete-profile', formData).subscribe({
             // next: (res: any) => {
             //   this.loading = false;
             //   this.notifications.success('Success', 'Profile completed successfully');
@@ -602,7 +602,7 @@ export class SeatBookingWizardComponent implements OnInit {
 
     this.loading = true;
 
-    this.http.post<any>('https://library-management-backend-3-62tq.onrender.com/api/auth/complete-profile', formData).subscribe({
+    this.http.post<any>('https://api.foujibookgardenlibrary.com/api/auth/complete-profile', formData).subscribe({
       next: (res: any) => {
         this.loading = false;
         this.notifications.success('Success', 'Profile saved successfully');
@@ -875,7 +875,7 @@ export class SeatBookingWizardComponent implements OnInit {
 
       // this.loading = true;
       // // sessionStorage.setItem("userdata",JSON.stringify(formData))
-      // this.http.post<any>('https://library-management-backend-3-62tq.onrender.com/api/auth/complete-profile', formData).subscribe({
+      // this.http.post<any>('https://api.foujibookgardenlibrary.com/api/auth/complete-profile', formData).subscribe({
       //   next: (res: any) => {
       //     this.loading = false;
       //     sessionStorage.setItem('completed_profile', JSON.stringify(res.user));

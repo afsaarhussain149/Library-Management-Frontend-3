@@ -118,7 +118,7 @@ export class LoginPageComponent {
     this.showForgot = false;
   }
 
-  api: any = 'https://library-management-backend-3-62tq.onrender.com';
+  api: any = 'https://api.foujibookgardenlibrary.com';
 
   sendForgotOtp() {
 

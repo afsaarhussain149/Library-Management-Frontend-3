@@ -9,7 +9,7 @@ import { NotificationsService, Options } from 'angular2-notifications';
   styleUrl: './fees-records.component.css'
 }) 
 export class FeesRecordsComponent implements OnInit {
-    api: any = 'https://library-management-backend-3-62tq.onrender.com';
+    api: any = 'https://api.foujibookgardenlibrary.com';
       page = 1;
   totalPages = 0;
   loading = false;

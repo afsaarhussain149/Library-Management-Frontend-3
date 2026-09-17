@@ -22,7 +22,7 @@ interface Seat {
   styleUrl: './seat-overview.component.css'
 })
 export class SeatOverviewComponent implements OnInit {
-  api: any = 'https://library-management-backend-3-62tq.onrender.com';
+  api: any = 'https://api.foujibookgardenlibrary.com';
 
   loading = false;
   seats: Seat[] = [];

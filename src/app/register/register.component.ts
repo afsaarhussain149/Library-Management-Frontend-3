@@ -96,7 +96,7 @@ export class RegisterComponent {
   }
   resetPhone: any;
   resetPassword: any;
-  api: any = 'https://library-management-backend-3-62tq.onrender.com';
+  api: any = 'https://api.foujibookgardenlibrary.com';
 
   resetPasswordApi() {
     if (!this.resetPhone || !this.resetPassword || !this.confirmPassword) {

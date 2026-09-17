@@ -9,7 +9,7 @@ import { NotificationsService, Options } from 'angular2-notifications';
   styleUrl: './seat-details.component.css'
 })
 export class SeatDetailsComponent implements OnInit {
-  api: any = 'https://library-management-backend-3-62tq.onrender.com';
+  api: any = 'https://api.foujibookgardenlibrary.com';
 
   loading = false;
   rows: any[] = [];

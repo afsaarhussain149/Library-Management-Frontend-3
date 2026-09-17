@@ -60,7 +60,7 @@ export class SeatComponent implements OnInit {
     if (parsed?.userId) userId = parsed.userId;
   } catch { }
 
-  let url = `https://library-management-backend-3-62tq.onrender.com/api/payments/seats/status?shift=${encodeURIComponent(this.shifttime)}`;
+  let url = `https://api.foujibookgardenlibrary.com/api/payments/seats/status?shift=${encodeURIComponent(this.shifttime)}`;
    if (userId) {
     url += `&userId=${encodeURIComponent(userId)}`;
   }

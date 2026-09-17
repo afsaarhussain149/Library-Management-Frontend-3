@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root'
 })
 export class homeService {
-  apiUrl = 'https://library-management-backend-3-62tq.onrender.com';
+  apiUrl = 'https://api.foujibookgardenlibrary.com';
 
   constructor(private http: HttpClient) {}
 
