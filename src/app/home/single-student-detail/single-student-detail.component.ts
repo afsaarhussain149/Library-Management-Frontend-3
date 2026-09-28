@@ -59,6 +59,7 @@ export class SingleStudentDetailComponent implements OnInit {
     this.form = {
       fullName: profile.full_name || this.data?.fullName || '',
       fatherName: profile.father_name || this.data?.fatherName || '',
+      preparationFor: profile.preparation_for || this.data?.preparationFor || '',
       gender: profile.gender || this.data?.gender || '',
       createdAt: this.formatToMMDDYYYY(profile.createdAt),
       dob: this.formatToMMDDYYYY(profile.dob),
@@ -86,6 +87,7 @@ export class SingleStudentDetailComponent implements OnInit {
   form: any = {
     fullName: '',
     fatherName: '',
+    preparationFor:'',
     gender: '',
     dob: '',
     email: '',
@@ -164,6 +166,7 @@ export class SingleStudentDetailComponent implements OnInit {
     formData.append('userId', this.data.userId);
     formData.append('fullName', this.form.fullName);
     formData.append('fatherName', this.form.fatherName);
+    formData.append('preparationFor', this.form.preparationFor);
     formData.append('gender', this.form.gender);
     formData.append('dob', this.form.dob);
     formData.append('email', this.form.email);
