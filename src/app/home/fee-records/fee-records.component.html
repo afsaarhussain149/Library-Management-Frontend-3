@@ -108,7 +108,15 @@
           <td class="px-4 py-3 capitalize">{{ row.paymentMode }}</td>
           <td class="px-4 py-3">{{ row.planType }}</td>
           <td class="px-4 py-3">
-            <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+            <!-- <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700 font-medium">
+              {{ row.status }}
+            </span> -->
+            <span class="px-2 py-1 rounded-full text-xs font-medium"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': row.status === 'paid',
+                    'bg-red-200 text-red-900': row.status === 'unpaid',
+                    'bg-gray-300 text-gray-800': row.status === 'left'
+                  }">
               {{ row.status }}
             </span>
           </td>

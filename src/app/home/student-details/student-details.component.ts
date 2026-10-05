@@ -139,7 +139,8 @@ export class StudentDetailsComponent {
           Name: u.fullName,
           Phone: u.phoneNumber,
           Status: u.paymentIsActive ? 'Active' : 'Inactive',
-          PaymentStatus: u.paymentStatus || 'N/A',
+          // PaymentStatus: u.paymentStatus || 'N/A',
+          PaymentStatus: u.paymentDisplayStatus || u.paymentStatus || 'N/A',
           CreatedAt: u.paymentCreatedAt ? this.formatToMMDDYYYY(u.paymentCreatedAt) : 'N/A'
         }));
 
@@ -200,7 +201,8 @@ export class StudentDetailsComponent {
             ...u,
             payment: u.paymentId ? {
               paymentId: u.paymentId,
-              status: u.paymentStatus,
+              // status: u.paymentStatus,
+              status: u.paymentDisplayStatus ?? u.paymentStatus,
               isActive: u.paymentIsActive,
               plan: { hours: u.planHours, type: u.planType },
               seats: typeof u.seats === 'string' && u.seats.length
@@ -444,6 +446,12 @@ export class StudentDetailsComponent {
 
       // Update UI instantly
       this.selectedUser.payment.isActive = newStatus;
+
+      const cur = this.selectedUser.payment.status;
+      if (['paid', 'unpaid', 'left'].includes(cur)) {
+        this.selectedUser.payment.status = newStatus ? 'paid' : 'left';
+      }
+      
       if (!newStatus) {
         this.selectedUser.payment.seats = [];
         this.selectedUser.payment.shift = { label: null, time: null };

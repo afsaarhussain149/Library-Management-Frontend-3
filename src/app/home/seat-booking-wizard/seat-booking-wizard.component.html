@@ -162,7 +162,7 @@
     <div class="border-t border-dashed border-gray-500 my-1"></div>
         <div
           *ngFor="let opt of plan.options"
-          class="flex items-center justify-between cursor-pointer p-2 rounded-md hover:bg-gray-700 transition-all"
+          class="flex items-center justify-between cursor-pointer p-2 rounded-md hover:bg-gray-700 transition-all bg-gray-700 bg-gray-700 hover:bg-gray-500"
           [class.bg-green-700]="plan.selectedOption === opt.name"
           (click)="selectOption(plan, opt)"
         >
@@ -209,18 +209,25 @@
 
   <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
     <div *ngFor="let shift of shifts" class="flex flex-col items-center space-y-4">
-      <button
+      <!-- <button
         class="bg-green-500 text-gray-800 font-semibold py-2 px-6 rounded-md shadow hover:bg-green-600 transition w-24"
         (click)="toggleShift(shift)"
       >
         {{ shift.label }}
-      </button>
+      </button> -->
 
       <div
+        class="bg-green-500 text-gray-800 font-semibold py-2 px-6 rounded-md shadow w-24 text-center"
+      >
+        {{ shift.label }}
+      </div>
+
+      <!-- <div
         class="flex flex-col items-center space-y-3 transition-all duration-300 overflow-hidden"
         [class.max-h-0]="!shift.open"
         [class.max-h-96]="shift.open"
-      >
+      > -->
+      <div class="flex flex-col items-center space-y-3">
         <button
           *ngFor="let time of shift.times"
           (click)="selectTime(shift.label, time)"
