@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { NotificationsService, Options } from 'angular2-notifications';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
+import { firstValueFrom } from 'rxjs';
 
 @Component({
   selector: 'app-fee-records',
@@ -33,9 +36,12 @@ export class FeeRecordsComponent implements OnInit {
     paymentMode: '',   // '' = all, else 'online' | 'cash'
     month: '',          // '' = all months, else '1'..'12' (payment month)
     expireMonth: '',     // '' = all months, else '1'..'12' (expiry month)
-    expireYear: ''       // '' = all years, else e.g. '2026'
+    expireYear: '',       // '' = all years, else e.g. '2026'
+    status: ''
   };
 
+  private statusCache: any[] | null = null;
+  private readonly PER_PAGE = 10;
   years: number[] = [];
 
   months = [
@@ -59,20 +65,68 @@ export class FeeRecordsComponent implements OnInit {
     this.fetchFeeRecords(1);
   }
 
-  applyFilter() {
+  // applyFilter() {
+  //   this.fetchFeeRecords(1);
+  // }
+
+  // clearFilter() {
+  //   this.filters = { studentName: '', phone: '', paymentMode: '', month: '', expireMonth: '', expireYear: '' };
+  //   this.fetchFeeRecords(1);
+  // }
+
+    applyFilter() {
+    this.statusCache = null; 
     this.fetchFeeRecords(1);
   }
 
   clearFilter() {
-    this.filters = { studentName: '', phone: '', paymentMode: '', month: '', expireMonth: '', expireYear: '' };
+    this.filters = { studentName: '', phone: '', paymentMode: '', month: '', expireMonth: '', expireYear: '', status: '' };
+    this.statusCache = null;
     this.fetchFeeRecords(1);
   }
 
-  fetchFeeRecords(page: number) {
-    if (page < 1 || (this.totalPages && page > this.totalPages)) return;
+  // fetchFeeRecords(page: number) {
+  //   if (page < 1 || (this.totalPages && page > this.totalPages)) return;
 
-    this.loading = true;
+  //   this.loading = true;
 
+  //   let params = new HttpParams().set('page', page);
+  //   if (this.filters.studentName) {
+  //     params = params.set('studentName', this.filters.studentName);
+  //   }
+  //   if (this.filters.phone) {
+  //     params = params.set('phone', this.filters.phone);
+  //   }
+  //   if (this.filters.paymentMode) {
+  //     params = params.set('paymentMode', this.filters.paymentMode);
+  //   }
+  //   if (this.filters.month) {
+  //     params = params.set('month', this.filters.month);
+  //   }
+  //   if (this.filters.expireMonth) {
+  //     params = params.set('expireMonth', this.filters.expireMonth);
+  //   }
+  //   if (this.filters.expireYear) {
+  //     params = params.set('expireYear', this.filters.expireYear);
+  //   }
+
+  //   this.http.get<any>(`${this.api}/api/payments/fee-records`, { params }).subscribe({
+  //     next: (res) => {
+  //       this.rows = res?.data || [];
+  //       this.total = res?.total || 0;
+  //       this.page = res?.page || 1;
+  //       this.totalPages = res?.totalPages || 0;
+  //       this.totalAmount = this.rows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+  //       this.loading = false;
+  //     },
+  //     error: (err) => {
+  //       this.loading = false;
+  //       this.notifications.error('Error', err.error?.message || 'Failed to load fee records');
+  //     }
+  //   });
+  // }
+
+    private buildParams(page: number): HttpParams {
     let params = new HttpParams().set('page', page);
     if (this.filters.studentName) {
       params = params.set('studentName', this.filters.studentName);
@@ -92,8 +146,20 @@ export class FeeRecordsComponent implements OnInit {
     if (this.filters.expireYear) {
       params = params.set('expireYear', this.filters.expireYear);
     }
+    return params;
+  }
 
-    this.http.get<any>(`${this.api}/api/payments/fee-records`, { params }).subscribe({
+  fetchFeeRecords(page: number) {
+    if (page < 1 || (this.totalPages && page > this.totalPages)) return;
+
+    if (this.filters.status) {
+      this.loadByStatus(page);
+      return;
+    }
+
+    this.loading = true;
+
+    this.http.get<any>(`${this.api}/api/payments/fee-records`, { params: this.buildParams(page) }).subscribe({
       next: (res) => {
         this.rows = res?.data || [];
         this.total = res?.total || 0;
@@ -107,6 +173,48 @@ export class FeeRecordsComponent implements OnInit {
         this.notifications.error('Error', err.error?.message || 'Failed to load fee records');
       }
     });
+  }
+
+  private loadByStatus(page: number) {
+    if (this.statusCache) {
+      this.showStatusPage(page);
+      return;
+    }
+
+    this.loading = true;
+    const collected: any[] = [];
+
+    const loadPage = (p: number) => {
+      this.http.get<any>(`${this.api}/api/payments/fee-records`, { params: this.buildParams(p) }).subscribe({
+        next: (res) => {
+          collected.push(...(res?.data || []));
+          const pages = res?.totalPages || 0;
+          if (p < pages) {
+            loadPage(p + 1);
+          } else {
+            this.statusCache = collected;
+            this.loading = false;
+            this.showStatusPage(page);
+          }
+        },
+        error: (err) => {
+          this.loading = false;
+          this.notifications.error('Error', err.error?.message || 'Failed to load fee records');
+        }
+      });
+    };
+
+    loadPage(1);
+  }
+
+  private showStatusPage(page: number) {
+    const filtered = (this.statusCache || []).filter(r => r.status === this.filters.status);
+    this.total = filtered.length;
+    this.totalPages = Math.ceil(filtered.length / this.PER_PAGE);
+    this.page = Math.min(Math.max(page, 1), Math.max(this.totalPages, 1));
+    const start = (this.page - 1) * this.PER_PAGE;
+    this.rows = filtered.slice(start, start + this.PER_PAGE);
+    this.totalAmount = this.rows.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
   }
 
   formatDate(dateStr: string): string {
@@ -158,5 +266,69 @@ export class FeeRecordsComponent implements OnInit {
     const encodedMessage = encodeURIComponent(message);
     const waUrl = `https://wa.me/${phone}?text=${encodedMessage}`;
     window.open(waUrl, '_blank');
+  }
+
+  private async fetchAllRows(): Promise<any[]> {
+    const all: any[] = [];
+    let p = 1;
+    let pages = 1;
+    while (p <= pages) {
+      const res = await firstValueFrom(
+        this.http.get<any>(`${this.api}/api/payments/fee-records`, { params: this.buildParams(p) })
+      );
+      all.push(...(res?.data || []));
+      pages = res?.totalPages || 0;
+      p++;
+    }
+    return all;
+  }
+
+  async exportToExcel() {
+    this.loading = true;
+    try {
+      let all = this.statusCache ?? await this.fetchAllRows();
+      if (this.filters.status) {
+        all = all.filter(r => r.status === this.filters.status);
+      }
+
+      if (all.length === 0) {
+        this.notifications.info('No data', 'There are no fee records to download');
+        return;
+      }
+
+      const data = all.map(r => ({
+        'Student ID': r.studentId,
+        'Student Name': r.studentName,
+        'Phone No.': r.phone ? String(r.phone) : '',
+        'Amount (₹)': (Number(r.amount) || 0) / 100,
+        'Payment Mode': r.paymentMode,
+        'Plan Type': r.planType,
+        'Status': r.status,
+        'Payment Date': this.formatDate(r.paymentDate),
+        'Expire Date': this.formatDate(r.expireDate)
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      worksheet['!cols'] = [
+        { wch: 12 }, { wch: 24 }, { wch: 14 }, { wch: 12 }, { wch: 14 },
+        { wch: 14 }, { wch: 10 }, { wch: 14 }, { wch: 14 }
+      ];
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Fee Records');
+
+      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([excelBuffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+      });
+
+      const today = new Date().toISOString().substring(0, 10);
+      saveAs(blob, `Fee_Records_${today}.xlsx`);
+      this.notifications.success('Success', 'Fee records downloaded successfully');
+    } catch (err: any) {
+      this.notifications.error('Error', err?.error?.message || 'Failed to download fee records');
+    } finally {
+      this.loading = false;
+    }
   }
 }

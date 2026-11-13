@@ -51,6 +51,10 @@ export class SeatBookingWizardComponent implements OnInit {
   successOverlayIsNew = true;
   successOverlayIsCash = false;
 
+  get isRenewal(): boolean {
+    return !!sessionStorage.getItem('renew_user_profile');
+  }
+
   allowOnlyNumbers(event: KeyboardEvent) {
     const charCode = event.which ? event.which : event.keyCode;
     // Allow only numbers (0-9)
@@ -166,7 +170,7 @@ export class SeatBookingWizardComponent implements OnInit {
   }
 
   isPlanSelected = false;
-  paymentMode: string = "online"; // default
+  paymentMode: string = "cash"; // default
 
   backendUrl = 'https://api.foujibookgardenlibrary.com/api/payments';
   submit() {
@@ -299,7 +303,9 @@ export class SeatBookingWizardComponent implements OnInit {
           formData.append('emergencyNumber', this.emergencyNumber || '');
           formData.append('presentAddress', this.presentAddress || '');
           formData.append('permanentAddress', this.permanentAddress || '');
-          formData.append('password', this.regpassword || '');
+          if (!this.isRenewal) {
+            formData.append('password', this.regpassword || '');
+          }
           formData.append('aadh', this.aadhar || '');
           formData.append('gender', this.gender || '');
 
@@ -413,7 +419,9 @@ export class SeatBookingWizardComponent implements OnInit {
           formData.append('emergencyNumber', this.emergencyNumber || '');
           formData.append('presentAddress', this.presentAddress || '');
           formData.append('permanentAddress', this.permanentAddress || '');
-          formData.append('password', this.regpassword || '');
+          if (!this.isRenewal) {
+            formData.append('password', this.regpassword || '');
+          }
           formData.append('aadh', this.aadhar || '');
           formData.append('gender', this.gender || '');
 
@@ -476,6 +484,7 @@ export class SeatBookingWizardComponent implements OnInit {
       this.preparationFor = p.preparationFor || '';
       this.dob = p.dob ? p.dob.substring(0, 10) : '';
       this.bloodGroup = p.bloodGroup || '';
+      this.regpassword = '';
       this.emailReg = p.email || '';
       this.personalNumber = p.personalNumber || '';
       this.emergencyNumber = p.emergencyNumber || '';
@@ -593,7 +602,9 @@ export class SeatBookingWizardComponent implements OnInit {
     formData.append('permanentAddress', this.permanentAddress || '');
     formData.append('aadh', this.aadhar || '');
     formData.append('gender', this.gender || '');
-    formData.append('password', this.regpassword || '');
+    if (!this.isRenewal) {
+      formData.append('password', this.regpassword || '');
+    }
 
     // ✅ Image (ONLY if selected)
     if (this.selectedFile) {
@@ -867,7 +878,9 @@ export class SeatBookingWizardComponent implements OnInit {
       formData.append('permanentAddress', this.permanentAddress || '');
       formData.append('aadh', this.aadhar || '');
       formData.append('gender', this.gender || '');
-      formData.append('password', this.regpassword || '');
+      if (!this.isRenewal) {
+        formData.append('password', this.regpassword || '');
+      }
 
       if (this.selectedFile) {
         formData.append('photo', this.selectedFile);
@@ -986,14 +999,16 @@ export class SeatBookingWizardComponent implements OnInit {
       return false;
     }
 
-    if (!this.regpassword?.trim()) {
-      this.notifications.error('Error', 'Password is required');
-      return false;
-    }
+    if (!this.isRenewal) {
+      if (!this.regpassword?.trim()) {
+        this.notifications.error('Error', 'Password is required');
+        return false;
+      }
 
-    if (this.regpassword.length < 6) {
-      this.notifications.error('Error', 'Password must be at least 6 characters');
-      return false;
+      if (this.regpassword.length < 6) {
+        this.notifications.error('Error', 'Password must be at least 6 characters');
+        return false;
+      }
     }
 
     return true; // ✅ all fields valid

@@ -342,7 +342,7 @@
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
           </div>
 
-          <div>
+          <div *ngIf="!isRenewal">
             <label class="block mb-2 font-medium text-gray-700">Password <span class="text-red-500">*</span></label>
             <input type="text" placeholder="password" name="regpassword" [(ngModel)]="regpassword"
               class="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#39d174] shadow-sm" />
